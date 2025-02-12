@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +21,11 @@ class UsageChart extends StatelessWidget {
       isWeekly ? value.inHours.toDouble() : value.inMinutes.toDouble(),
     ));
 
+    // Calculate nice intervals for the Y-axis
+    final maxValue = numericData.values.reduce((a, b) => a > b ? a : b);
+    final interval = _calculateNiceInterval(maxValue);
+    final maxY = ((maxValue / interval).ceil() * interval * 1.2);
+
     return Card(
       color: Colors.grey[850],
       elevation: 4,
@@ -31,14 +37,14 @@ class UsageChart extends StatelessWidget {
           children: [
             Text(
               title,
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Expanded(
               child: BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
-                  maxY: numericData.values.reduce((a, b) => a > b ? a : b) * 1.2,
+                  maxY: maxY,
                   barTouchData: BarTouchData(enabled: false),
                   titlesData: FlTitlesData(
                     show: true,
@@ -49,7 +55,7 @@ class UsageChart extends StatelessWidget {
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
                             numericData.keys.elementAt(value.toInt()),
-                            style: TextStyle(color: Colors.white60, fontSize: 12),
+                            style: const TextStyle(color: Colors.white60, fontSize: 12),
                           ),
                         ),
                       ),
@@ -58,16 +64,20 @@ class UsageChart extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 40,
-                        getTitlesWidget: (value, meta) => Text(
-                          isWeekly ? '${value.toInt()}h' : '${value.toInt()}m',
-                          style: TextStyle(color: Colors.white60, fontSize: 12),
-                        ),
+                        interval: interval,
+                        getTitlesWidget: (value, meta) {
+                          if (value % interval != 0) return const SizedBox.shrink();
+                          return Text(
+                            isWeekly ? '${value.toInt()}h' : '${value.toInt()}m',
+                            style: const TextStyle(color: Colors.white60, fontSize: 12),
+                          );
+                        },
                       ),
                     ),
-                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   ),
-                  gridData: FlGridData(show: false),
+                  gridData: const FlGridData(show: false),
                   borderData: FlBorderData(show: false),
                   barGroups: numericData.entries.map((entry) {
                     return BarChartGroupData(
@@ -89,6 +99,20 @@ class UsageChart extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  double _calculateNiceInterval(double maxValue) {
+    // Calculate a "nice" interval that will create evenly spaced, readable values
+    final rough = maxValue / 5; // We want approximately 5 intervals
+    final magnitude = pow(10, (log(rough) / ln10).floor()).toDouble();
+    final niceIntervals = [1, 2, 5, 10];
+
+    for (final interval in niceIntervals) {
+      if (interval * magnitude >= rough) {
+        return interval * magnitude;
+      }
+    }
+    return niceIntervals.last * magnitude;
   }
 }
 

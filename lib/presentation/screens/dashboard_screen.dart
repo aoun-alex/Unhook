@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/usage_provider.dart';
 import '../widgets/usage_chart.dart';
+import 'detailed_usage_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -129,6 +130,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               final appName = entry.key;
               final duration = entry.value;
               return ListTile(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DetailedUsageScreen(),
+                    settings: RouteSettings(arguments: appName),
+                  ),
+                ),
                 title: Text(appName, style: const TextStyle(color: Colors.white)),
                 trailing: Text(
                   _formatDuration(duration, isWeekly),
@@ -150,3 +158,4 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     }
   }
 }
+

@@ -21,10 +21,41 @@ class UsageChart extends StatelessWidget {
       isWeekly ? value.inHours.toDouble() : value.inMinutes.toDouble(),
     ));
 
+    // Handle empty data or all zeros
+    if (numericData.isEmpty || numericData.values.every((value) => value == 0)) {
+      return Card(
+        color: Colors.grey[850],
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const Expanded(
+                child: Center(
+                  child: Text(
+                    'No usage data for this period',
+                    style: TextStyle(color: Colors.white60, fontSize: 16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     // Calculate nice intervals for the Y-axis
     final maxValue = numericData.values.reduce((a, b) => a > b ? a : b);
-    final interval = _calculateNiceInterval(maxValue);
-    final maxY = ((maxValue / interval).ceil() * interval * 1.2);
+    // Ensure we have a minimum value to prevent division by zero
+    final interval = _calculateNiceInterval(maxValue > 0 ? maxValue : 10);
+    // Set a minimum maxY to show a reasonable scale even with very small values
+    final maxY = max(((maxValue / interval).ceil() * interval * 1.2), interval * 2);
 
     return Card(
       color: Colors.grey[850],
@@ -45,6 +76,7 @@ class UsageChart extends StatelessWidget {
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
                   maxY: maxY,
+                  minY: 0,
                   barTouchData: BarTouchData(enabled: false),
                   titlesData: FlTitlesData(
                     show: true,
@@ -54,7 +86,9 @@ class UsageChart extends StatelessWidget {
                         getTitlesWidget: (value, meta) => Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
-                            numericData.keys.elementAt(value.toInt()),
+                            value.toInt() < numericData.length
+                                ? numericData.keys.elementAt(value.toInt())
+                                : '',
                             style: const TextStyle(color: Colors.white60, fontSize: 12),
                           ),
                         ),
@@ -102,7 +136,7 @@ class UsageChart extends StatelessWidget {
   }
 
   double _calculateNiceInterval(double maxValue) {
-    // Calculate a "nice" interval that will create evenly spaced, readable values
+    if (maxValue <= 0) return 1; // Return a default interval if maxValue is 0
     final rough = maxValue / 5; // We want approximately 5 intervals
     final magnitude = pow(10, (log(rough) / ln10).floor()).toDouble();
     final niceIntervals = [1, 2, 5, 10];

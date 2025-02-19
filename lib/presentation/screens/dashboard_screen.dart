@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../data/services/usage_service.dart';
 import '../../providers/usage_provider.dart';
 import '../widgets/usage_chart.dart';
 import 'detailed_usage_screen.dart';
@@ -16,8 +17,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final todayUsageAsync = ref.watch(todayUsageProvider);
-    final weeklyUsageAsync = ref.watch(weeklyUsageProvider);
+    final todayUsageAsync = ref.watch(todayUsageSummaryProvider);
+    final weeklyUsageAsync = ref.watch(weeklyUsageSummaryProvider);
 
     return Scaffold(
       backgroundColor: Colors.grey[900],
@@ -74,22 +75,30 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Expanded(
               child: _isDaily
                   ? todayUsageAsync.when(
-                data: (todayUsage) => _buildUsageContent(
-                  usage: todayUsage,
+                data: (summaries) => _buildUsageContent(
+                  summaries: summaries,
                   chartTitle: "Today's Usage",
                   isWeekly: false,
                 ),
-                loading: () => const Center(child: CircularProgressIndicator(color: Colors.tealAccent)),
-                error: (error, stack) => const Center(child: Text('Error loading data', style: TextStyle(color: Colors.white))),
+                loading: () => const Center(
+                    child:
+                    CircularProgressIndicator(color: Colors.tealAccent)),
+                error: (error, stack) => Center(
+                    child: Text('Error: $error',
+                        style: const TextStyle(color: Colors.white))),
               )
                   : weeklyUsageAsync.when(
-                data: (weeklyUsage) => _buildUsageContent(
-                  usage: weeklyUsage,
+                data: (summaries) => _buildUsageContent(
+                  summaries: summaries,
                   chartTitle: "This Week's Usage",
                   isWeekly: true,
                 ),
-                loading: () => const Center(child: CircularProgressIndicator(color: Colors.tealAccent)),
-                error: (error, stack) => const Center(child: Text('Error loading data', style: TextStyle(color: Colors.white))),
+                loading: () => const Center(
+                    child:
+                    CircularProgressIndicator(color: Colors.tealAccent)),
+                error: (error, stack) => Center(
+                    child: Text('Error: $error',
+                        style: const TextStyle(color: Colors.white))),
               ),
             ),
           ],
@@ -99,19 +108,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildUsageContent({
-    required Map<String, Duration> usage,
+    required List<AppUsageSummary> summaries,
     required String chartTitle,
     required bool isWeekly,
   }) {
-    final sortedApps = usage.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    if (summaries.isEmpty) {
+      return const Center(
+          child: Text('No usage data available',
+              style: TextStyle(color: Colors.white)));
+    }
+
+    final chartData = ref.read(usageChartDataProvider(summaries));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: UsageChart(
-            usageData: {for (var entry in sortedApps.take(3)) entry.key: entry.value},
+            usageData: chartData,
             title: chartTitle,
             isWeekly: isWeekly,
           ),
@@ -119,28 +133,30 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         const SizedBox(height: 24),
         const Text(
           'App Breakdown',
-          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Expanded(
           child: ListView.builder(
-            itemCount: sortedApps.length,
+            itemCount: summaries.length,
             itemBuilder: (context, index) {
-              final entry = sortedApps[index];
-              final appName = entry.key;
-              final duration = entry.value;
+              final summary = summaries[index];
               return ListTile(
+                leading: summary.appIcon != null
+                    ? Image.memory(summary.appIcon!, width: 40, height: 40)
+                    : const SizedBox(width: 40, height: 40),
+                title: Text(summary.appName,
+                    style: const TextStyle(color: Colors.white)),
+                trailing: Text(
+                  summary.totalDurationText,
+                  style: const TextStyle(color: Colors.tealAccent),
+                ),
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const DetailedUsageScreen(),
-                    settings: RouteSettings(arguments: appName),
+                    builder: (context) => DetailedUsageScreen(summary: summary),
                   ),
-                ),
-                title: Text(appName, style: const TextStyle(color: Colors.white)),
-                trailing: Text(
-                  _formatDuration(duration, isWeekly),
-                  style: const TextStyle(color: Colors.tealAccent),
                 ),
               );
             },
@@ -149,13 +165,4 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       ],
     );
   }
-
-  String _formatDuration(Duration duration, bool isWeekly) {
-    if (isWeekly) {
-      return '${duration.inHours}h ${duration.inMinutes.remainder(60)}m';
-    } else {
-      return '${duration.inMinutes}m';
-    }
-  }
 }
-

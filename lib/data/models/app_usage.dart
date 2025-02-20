@@ -13,6 +13,7 @@ class AppUsage extends AppModel {
   int _durationInSeconds = 0;
 
   int get durationInSeconds => _durationInSeconds;
+  DateTime get endTime => time.add(Duration(seconds: _durationInSeconds));
 
   set durationInSeconds(int value) {
     _durationInSeconds = value;
@@ -21,5 +22,6 @@ class AppUsage extends AppModel {
     int hours = (value ~/ (60 * 60));
     durationInText = "${hours}h ${minutes}m ${seconds}s";
   }
+
   String? durationInText;
 }

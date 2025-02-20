@@ -163,24 +163,32 @@ class DetailedUsageScreen extends StatelessWidget {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: ListTile(
-                                title: Text(
-                                  _formatTime(session.time),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  session.durationInText ?? '',
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                                trailing: const Icon(
-                                  Icons.access_time,
-                                  color: Colors.tealAccent,
-                                  size: 20,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          '${_formatTime(session.time)} - ${_formatTime(session.endTime)}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Text(
+                                          session.durationInText ?? '',
+                                          style: const TextStyle(
+                                            color: Colors.tealAccent,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
                             );

@@ -21,87 +21,85 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final weeklyUsageAsync = ref.watch(weeklyUsageSummaryProvider);
 
     return Scaffold(
-      backgroundColor: Colors.grey[900],
-      appBar: AppBar(
-        title: const Text('Unhook', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _isDaily ? 'Today\'s Focus' : 'This Week\'s Progress',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment<bool>(value: true, label: Text('Today')),
-                ButtonSegment<bool>(value: false, label: Text('This Week')),
-              ],
-              selected: {_isDaily},
-              onSelectionChanged: (Set<bool> newSelection) {
-                setState(() {
-                  _isDaily = newSelection.first;
-                });
-              },
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.resolveWith<Color>(
-                      (Set<WidgetState> states) {
-                    if (states.contains(WidgetState.selected)) {
-                      return Colors.tealAccent;
-                    }
-                    return Colors.grey[800]!;
-                  },
-                ),
-                foregroundColor: WidgetStateProperty.resolveWith<Color>(
-                      (Set<WidgetState> states) {
-                    if (states.contains(WidgetState.selected)) {
-                      return Colors.black;
-                    }
-                    return Colors.white;
-                  },
+      backgroundColor: const Color(0xFF121212),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              Text(
+                _isDaily ? 'Today\'s Focus' : 'This Week\'s Progress',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Expanded(
-              child: _isDaily
-                  ? todayUsageAsync.when(
-                data: (summaries) => _buildUsageContent(
-                  summaries: summaries,
-                  chartTitle: "Today's Usage",
-                  isWeekly: false,
+              const SizedBox(height: 16),
+              SegmentedButton<bool>(
+                segments: const [
+                  ButtonSegment<bool>(value: true, label: Text('Today')),
+                  ButtonSegment<bool>(value: false, label: Text('This Week')),
+                ],
+                selected: {_isDaily},
+                onSelectionChanged: (Set<bool> newSelection) {
+                  setState(() {
+                    _isDaily = newSelection.first;
+                  });
+                },
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                        (Set<WidgetState> states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return Colors.tealAccent;
+                      }
+                      return Colors.grey[850]!;
+                    },
+                  ),
+                  foregroundColor: WidgetStateProperty.resolveWith<Color>(
+                        (Set<WidgetState> states) {
+                      if (states.contains(WidgetState.selected)) {
+                        return Colors.black;
+                      }
+                      return Colors.white;
+                    },
+                  ),
                 ),
-                loading: () => const Center(
-                    child:
-                    CircularProgressIndicator(color: Colors.tealAccent)),
-                error: (error, stack) => Center(
-                    child: Text('Error: $error',
-                        style: const TextStyle(color: Colors.white))),
-              )
-                  : weeklyUsageAsync.when(
-                data: (summaries) => _buildUsageContent(
-                  summaries: summaries,
-                  chartTitle: "This Week's Usage",
-                  isWeekly: true,
-                ),
-                loading: () => const Center(
-                    child:
-                    CircularProgressIndicator(color: Colors.tealAccent)),
-                error: (error, stack) => Center(
-                    child: Text('Error: $error',
-                        style: const TextStyle(color: Colors.white))),
               ),
-            ),
-          ],
+              const SizedBox(height: 24),
+              Expanded(
+                child: _isDaily
+                    ? todayUsageAsync.when(
+                  data: (summaries) => _buildUsageContent(
+                    summaries: summaries,
+                    chartTitle: "Today's Usage",
+                    isWeekly: false,
+                  ),
+                  loading: () => const Center(
+                      child: CircularProgressIndicator(
+                          color: Colors.tealAccent)),
+                  error: (error, stack) => Center(
+                      child: Text('Error: $error',
+                          style: const TextStyle(color: Colors.white))),
+                )
+                    : weeklyUsageAsync.when(
+                  data: (summaries) => _buildUsageContent(
+                    summaries: summaries,
+                    chartTitle: "This Week's Usage",
+                    isWeekly: true,
+                  ),
+                  loading: () => const Center(
+                      child: CircularProgressIndicator(
+                          color: Colors.tealAccent)),
+                  error: (error, stack) => Center(
+                      child: Text('Error: $error',
+                          style: const TextStyle(color: Colors.white))),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

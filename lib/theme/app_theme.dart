@@ -27,9 +27,16 @@ class AppTheme {
       ),
     ),
     colorScheme: const ColorScheme.dark(
-      primary: Colors.blue,
-      onPrimary: Colors.white,
+      primary: Colors.tealAccent,
+      onPrimary: Colors.black,
       surface: Color(0xFF1F1F1F),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: Colors.grey[900]!.withValues(alpha: 0.95),
+      indicatorColor: Colors.tealAccent.withValues(alpha: 0.3),
+      labelTextStyle: WidgetStateProperty.all(
+        const TextStyle(fontSize: 12, color: Colors.white),
+      ),
     ),
   );
 }

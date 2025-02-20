@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/app_theme.dart';
-import 'presentation/screens/dashboard_screen.dart';
+import 'presentation/screens/main_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Unhook',
       theme: AppTheme.darkTheme,
-      home: const DashboardScreen(),
+      home: const MainScreen(),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dashboard_screen.dart';
-import 'placeholder_screens.dart';
+import 'goals_screen.dart';
+import 'placeholder_screens.dart';  // This contains MindfulScreen and SettingsScreen
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -15,8 +16,8 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const DashboardScreen(),
     const GoalsScreen(),
-    const MindfulScreen(),
-    const SettingsScreen(),
+    const MindfulScreen(),    // From placeholder_screens.dart
+    const SettingsScreen(),    // From placeholder_screens.dart
   ];
 
   @override
@@ -25,8 +26,8 @@ class _MainScreenState extends State<MainScreen> {
       body: _screens[_selectedIndex],
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
-          backgroundColor: Colors.grey[900]!.withValues(alpha: 0.95),
-          indicatorColor: Colors.tealAccent.withValues(alpha: 0.3),
+          backgroundColor: Colors.grey[900]!.withAlpha(242),
+          indicatorColor: Colors.tealAccent.withAlpha(76),
           labelTextStyle: WidgetStateProperty.all(
             const TextStyle(fontSize: 12, color: Colors.white),
           ),

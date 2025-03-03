@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class GoalsScreen extends StatelessWidget {
-  const GoalsScreen({super.key});
+class PlaceholderScreen extends StatelessWidget {
+  const PlaceholderScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -10,26 +10,11 @@ class GoalsScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 16),
-              Text(
-                'Goals',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 16),
-              Center(
-                child: Text(
-                  'Coming Soon!',
-                  style: TextStyle(color: Colors.white70),
-                ),
-              ),
-            ],
+          child: Center(
+            child: Text(
+              'Placeholder Screen',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ),
       ),
@@ -47,26 +32,11 @@ class MindfulScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 16),
-              Text(
-                'Mindful',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 16),
-              Center(
-                child: Text(
-                  'Coming Soon!',
-                  style: TextStyle(color: Colors.white70),
-                ),
-              ),
-            ],
+          child: Center(
+            child: Text(
+              'Mindful Screen',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ),
       ),
@@ -84,26 +54,11 @@ class SettingsScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 16),
-              Text(
-                'Settings',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 16),
-              Center(
-                child: Text(
-                  'Coming Soon!',
-                  style: TextStyle(color: Colors.white70),
-                ),
-              ),
-            ],
+          child: Center(
+            child: Text(
+              'Settings Screen',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ),
       ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dashboard_screen.dart';
 import 'goals_screen.dart';
-import 'placeholder_screens.dart';  // This contains MindfulScreen and SettingsScreen
+import 'placeholder_screens.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -16,8 +16,8 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const DashboardScreen(),
     const GoalsScreen(),
-    const MindfulScreen(),    // From placeholder_screens.dart
-    const SettingsScreen(),    // From placeholder_screens.dart
+    const MindfulScreen(),
+    const SettingsScreen(),
   ];
 
   @override

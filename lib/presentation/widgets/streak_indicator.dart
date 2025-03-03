@@ -15,8 +15,8 @@ class StreakIndicator extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.tealAccent.withAlpha(51), // Changed from withOpacity(0.2)
-            Colors.teal.withAlpha(26), // Changed from withOpacity(0.1)
+            Colors.tealAccent.withAlpha(51),
+            Colors.teal.withAlpha(26),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -28,7 +28,7 @@ class StreakIndicator extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.tealAccent.withAlpha(77), // Changed from withOpacity(0.3)
+              color: Colors.tealAccent.withAlpha(77),
               shape: BoxShape.circle,
             ),
             child: const Icon(

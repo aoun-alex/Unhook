@@ -32,7 +32,7 @@ class GoalTemplateCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.tealAccent.withAlpha(51), // Changed from withOpacity(0.2)
+                    color: Colors.tealAccent.withAlpha(51),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(

@@ -43,7 +43,7 @@ class AppLimitCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: iconColor.withAlpha(51), // Changed from withOpacity(0.2)
+                    color: iconColor.withAlpha(51),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -69,7 +69,7 @@ class AppLimitCard extends StatelessWidget {
                       Text(
                         category,
                         style: TextStyle(
-                          color: Colors.white.withAlpha(153), // Changed from withOpacity(0.6)
+                          color: Colors.white.withAlpha(153),
                           fontSize: 12,
                         ),
                       ),
@@ -79,7 +79,6 @@ class AppLimitCard extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.more_vert, color: Colors.white70),
                   onPressed: () {
-                    // Show options menu
                   },
                 ),
               ],

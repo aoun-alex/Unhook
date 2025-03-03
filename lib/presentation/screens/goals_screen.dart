@@ -78,13 +78,10 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    // Active limits tab
                     _buildActiveLimitsTab(),
 
-                    // Templates tab
                     _buildTemplatesTab(),
 
-                    // Completed tab
                     _buildCompletedTab(),
                   ],
                 ),
@@ -174,7 +171,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
           Icon(
             Icons.emoji_events,
             size: 64,
-            color: Colors.tealAccent.withAlpha(128), // Changed from withOpacity(0.5)
+            color: Colors.tealAccent.withAlpha(128),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -231,7 +228,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                     isExpanded: true,
                     hint: const Text('Choose an app', style: TextStyle(color: Colors.white70)),
                     dropdownColor: const Color(0xFF2A2A2A),
-                    items: const [], // Would be populated with actual apps
+                    items: const [], //TODO: Add app list
                     onChanged: null,
                   ),
                 ),

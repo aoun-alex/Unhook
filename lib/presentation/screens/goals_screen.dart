@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/app_limit_card.dart';
-import '../widgets/goal_template_card.dart';
 import '../widgets/streak_indicator.dart';
 
 class GoalsScreen extends ConsumerStatefulWidget {
@@ -17,7 +16,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -67,7 +66,6 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                 unselectedLabelColor: Colors.white70,
                 tabs: const [
                   Tab(text: 'Active'),
-                  Tab(text: 'Templates'),
                   Tab(text: 'Completed'),
                 ],
               ),
@@ -79,9 +77,6 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                   controller: _tabController,
                   children: [
                     _buildActiveLimitsTab(),
-
-                    _buildTemplatesTab(),
-
                     _buildCompletedTab(),
                   ],
                 ),
@@ -131,33 +126,6 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
           currentUsage: 15,
           limitInMinutes: 45,
           category: 'Entertainment',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTemplatesTab() {
-    return ListView(
-      children: const [
-        GoalTemplateCard(
-          title: 'Digital Detox',
-          description: 'Limit social media apps to 30 minutes per day',
-          icon: Icons.spa,
-          apps: ['Instagram', 'Twitter', 'Facebook', 'TikTok'],
-        ),
-        SizedBox(height: 12),
-        GoalTemplateCard(
-          title: 'Focus Mode',
-          description: 'Block distracting apps during work hours',
-          icon: Icons.work,
-          apps: ['YouTube', 'Netflix', 'Games'],
-        ),
-        SizedBox(height: 12),
-        GoalTemplateCard(
-          title: 'Sleep Better',
-          description: 'No screen time 1 hour before bed',
-          icon: Icons.nightlight_round,
-          apps: ['All apps'],
         ),
       ],
     );

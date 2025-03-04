@@ -1,9 +1,10 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 class AppLimitCard extends StatelessWidget {
   final String appName;
-  final IconData appIcon;
-  final Color iconColor;
+  final Uint8List? appIcon;
+  final String packageName;
   final int currentUsage;
   final int limitInMinutes;
   final String category;
@@ -13,7 +14,7 @@ class AppLimitCard extends StatelessWidget {
     super.key,
     required this.appName,
     required this.appIcon,
-    required this.iconColor,
+    required this.packageName,
     required this.currentUsage,
     required this.limitInMinutes,
     required this.category,
@@ -43,12 +44,14 @@ class AppLimitCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: iconColor.withAlpha(51),
+                    color: Colors.grey.withAlpha(40),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
-                    appIcon,
-                    color: iconColor,
+                  child: appIcon != null
+                      ? Image.memory(appIcon!, width: 24, height: 24)
+                      : const Icon(
+                    Icons.app_shortcut,
+                    color: Colors.white70,
                     size: 24,
                   ),
                 ),
@@ -79,6 +82,7 @@ class AppLimitCard extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.more_vert, color: Colors.white70),
                   onPressed: () {
+                    // Handle more options
                   },
                 ),
               ],

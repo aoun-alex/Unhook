@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/app_limit_card.dart';
 import '../widgets/streak_indicator.dart';
+import '../../providers/goals_provider.dart';
 
 class GoalsScreen extends ConsumerStatefulWidget {
   const GoalsScreen({super.key});
@@ -89,45 +90,47 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
   }
 
   Widget _buildActiveLimitsTab() {
-    return ListView(
-      children: const [
-        AppLimitCard(
-          appName: 'Instagram',
-          appIcon: Icons.camera_alt,
-          iconColor: Colors.pink,
-          currentUsage: 45,
-          limitInMinutes: 60,
-          category: 'Social',
+    final activeGoalsAsync = ref.watch(activeGoalsProvider);
+
+    return activeGoalsAsync.when(
+      data: (goals) {
+        if (goals.isEmpty) {
+          return const Center(
+            child: Text(
+              'No active app limits set',
+              style: TextStyle(color: Colors.white70),
+            ),
+          );
+        }
+
+        return ListView.builder(
+          itemCount: goals.length,
+          itemBuilder: (context, index) {
+            final goal = goals[index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: AppLimitCard(
+                appName: goal.appName,
+                appIcon: goal.appIcon,
+                packageName: goal.packageName,
+                currentUsage: goal.currentUsage,
+                limitInMinutes: goal.limitInMinutes,
+                category: goal.category,
+                isLimitReached: goal.isLimitReached,
+              ),
+            );
+          },
+        );
+      },
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: Colors.tealAccent),
+      ),
+      error: (error, stackTrace) => Center(
+        child: Text(
+          'Error loading goals: $error',
+          style: const TextStyle(color: Colors.white70),
         ),
-        SizedBox(height: 12),
-        AppLimitCard(
-          appName: 'YouTube',
-          appIcon: Icons.play_arrow,
-          iconColor: Colors.red,
-          currentUsage: 85,
-          limitInMinutes: 90,
-          category: 'Entertainment',
-        ),
-        SizedBox(height: 12),
-        AppLimitCard(
-          appName: 'Twitter',
-          appIcon: Icons.chat,
-          iconColor: Colors.lightBlue,
-          currentUsage: 30,
-          limitInMinutes: 30,
-          category: 'Social',
-          isLimitReached: true,
-        ),
-        SizedBox(height: 12),
-        AppLimitCard(
-          appName: 'TikTok',
-          appIcon: Icons.music_note,
-          iconColor: Colors.purpleAccent,
-          currentUsage: 15,
-          limitInMinutes: 45,
-          category: 'Entertainment',
-        ),
-      ],
+      ),
     );
   }
 

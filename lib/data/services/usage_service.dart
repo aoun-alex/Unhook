@@ -4,6 +4,7 @@ import '../../constants.dart';
 import '../models/app_event.dart';
 import '../models/app_usage.dart';
 import 'package:flutter/services.dart';
+import 'dart:developer' as developer;
 
 class AppUsageSummary {
   final String appName;
@@ -53,7 +54,7 @@ class UsageService {
     return _defaultIcon!;
   }
 
-  Future<Uint8List> _fetchIcon(String packageName) async {
+  Future<Uint8List> fetchIcon(String packageName) async {
     try {
       final icon = await _packageManager.getApplicationIcon(packageName: packageName);
       return icon ?? await _getDefaultIcon();
@@ -74,35 +75,54 @@ class UsageService {
       throw Exception('Usage permission not granted');
     }
 
-    // Query raw events
     List<EventUsageInfo> rawEvents = await UsageStats.queryEvents(startDate, endDate);
 
-    // Prepare icon cache
     Map<String, Uint8List> iconCache = {};
 
-    // Filter relevant package names
+    Map<String, int> eventCountByPackage = {};
+    for (var e in rawEvents) {
+      if (e.packageName != null) {
+        eventCountByPackage[e.packageName!] = (eventCountByPackage[e.packageName!] ?? 0) + 1;
+      }
+    }
+
+    eventCountByPackage.entries
+        .toList()
+        .sort((a, b) => b.value.compareTo(a.value));
+    for (var entry in eventCountByPackage.entries.take(10)) {
+      developer.log('${entry.key}: ${entry.value} events (tracked: ${appNameMap.containsKey(entry.key)})');
+    }
+
     Set<String> packageNames = rawEvents
         .where((e) => e.packageName != null && appNameMap.containsKey(e.packageName!))
         .map((e) => e.packageName!)
         .toSet();
-
-    // Fetch icons for all apps
     await Future.wait(
         packageNames.map((pkg) async {
-          iconCache[pkg] = await _fetchIcon(pkg);
+          iconCache[pkg] = await fetchIcon(pkg);
         })
     );
 
-    // Process events by app
     Map<String, List<AppEvent>> eventsByApp = {};
 
     for (var raw in rawEvents) {
       if (raw.packageName == null || !appNameMap.containsKey(raw.packageName!)) continue;
 
-      String? eventType = eventTypeMap[int.parse(raw.eventType!)];
+      String? eventType;
+      try {
+        eventType = eventTypeMap[int.parse(raw.eventType!)];
+      } catch (e) {
+        continue;
+      }
+
       if (eventType == null) continue;
 
-      if (!eventTypeForDurationList.contains(eventType)) continue;
+      if (!eventTypeForDurationList.contains(eventType)) {
+        if (raw.packageName == 'com.twitter.android' || raw.packageName == 'com.pinterest') {
+          developer.log('Skipped event for ${raw.packageName}: $eventType');
+        }
+        continue;
+      }
 
       DateTime eventTime = DateTime.fromMillisecondsSinceEpoch(int.parse(raw.timeStamp!));
       String packageName = raw.packageName!;
@@ -115,6 +135,12 @@ class UsageService {
       );
 
       eventsByApp.putIfAbsent(packageName, () => []).add(event);
+    }
+
+    // Log which apps have events
+    developer.log('Apps with processed events:');
+    for (var entry in eventsByApp.entries) {
+      developer.log('${entry.key} (${appNameMap[entry.key]}): ${entry.value.length} events');
     }
 
     // Process events into sessions
@@ -195,7 +221,11 @@ class UsageService {
       }
     });
 
-    // Sort by total duration (descending)
+    developer.log('Final app summaries: ${summaries.length}');
+    for (var summary in summaries) {
+      developer.log('${summary.appName}: ${summary.totalDurationText} (${summary.sessions.length} sessions)');
+    }
+    
     summaries.sort((a, b) => b.totalDurationSeconds.compareTo(a.totalDurationSeconds));
 
     return summaries;

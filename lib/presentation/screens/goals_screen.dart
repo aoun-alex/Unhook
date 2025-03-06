@@ -252,7 +252,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.tealAccent.withAlpha(38),
+                            color: Colors.tealAccent.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(

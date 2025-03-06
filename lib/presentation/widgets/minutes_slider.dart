@@ -67,7 +67,7 @@ class _MinutesSliderState extends State<MinutesSlider> {
             child: Container(
               height: 45,
               decoration: BoxDecoration(
-                  color: Colors.tealAccent.withValues(alpha: 0.2),
+                color: Colors.tealAccent.withAlpha(38),
                 borderRadius: BorderRadius.circular(8),
               ),
             ),

@@ -10,6 +10,29 @@ import '../../data/models/goal_limit.dart';
 class GoalsScreen extends ConsumerStatefulWidget {
   const GoalsScreen({super.key});
 
+  // Expose categories list
+  static List<String> getCategories() {
+    return [
+      'Social',
+      'Entertainment',
+      'Communication',
+      'Productivity',
+      'Gaming',
+      'Other'
+    ];
+  }
+
+  // Expose minutes slider
+  static Widget getMinutesSlider({
+    required int initialValue,
+    required Function(int) onChanged,
+  }) {
+    return MinutesSlider(
+      initialValue: initialValue,
+      onChanged: onChanged,
+    );
+  }
+
   @override
   ConsumerState<GoalsScreen> createState() => _GoalsScreenState();
 }
@@ -18,15 +41,6 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
   late TabController _tabController;
   int _limitInMinutes = 60; // Default limit of 60 minutes (1 hour)
   String _selectedCategory = 'Social'; // Default category
-
-  final List<String> _categories = [
-    'Social',
-    'Entertainment',
-    'Communication',
-    'Productivity',
-    'Gaming',
-    'Other'
-  ];
 
   @override
   void initState() {
@@ -299,7 +313,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                           value: _selectedCategory,
                           dropdownColor: const Color(0xFF2A2A2A),
                           style: const TextStyle(color: Colors.white),
-                          items: _categories.map((category) {
+                          items: GoalsScreen.getCategories().map((category) {
                             return DropdownMenuItem<String>(
                               value: category,
                               child: Text(category),

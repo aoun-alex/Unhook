@@ -2,14 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/app_theme.dart';
 import 'presentation/screens/main_screen.dart';
-import 'data/services/hive_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize Hive using HiveService
-  await HiveService.init();
-
   runApp(
     const ProviderScope(
       child: MyApp(),

@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:android_package_manager/android_package_manager.dart';
+import 'package:device_apps/device_apps.dart';
 import '../../constants.dart';
 import 'dart:developer' as developer;
 
@@ -16,7 +16,6 @@ class AppInfo {
 }
 
 class AppDiscoveryService {
-  final _packageManager = AndroidPackageManager();
   Uint8List? _defaultIcon;
 
   // Get default icon for fallback
@@ -31,8 +30,11 @@ class AppDiscoveryService {
   // Fetch icon for a package
   Future<Uint8List> fetchIcon(String packageName) async {
     try {
-      final icon = await _packageManager.getApplicationIcon(packageName: packageName);
-      return icon ?? await _getDefaultIcon();
+      final app = await DeviceApps.getApp(packageName, true);
+      if (app != null && app is ApplicationWithIcon) {
+        return Uint8List.fromList(app.icon);
+      }
+      return await _getDefaultIcon();
     } catch (_) {
       return await _getDefaultIcon();
     }
@@ -44,24 +46,31 @@ class AppDiscoveryService {
 
     try {
       // Get all installed apps
-      final installedApps = await _packageManager.getInstalledApplications();
+      final installedApps = await DeviceApps.getInstalledApplications(
+        includeSystemApps: false,
+        includeAppIcons: true,
+      );
 
       // For each installed app, check if it's in our monitored list
-      if (installedApps != null) {
-        for (var app in installedApps) {
-          final packageName = app.packageName;
+      for (var app in installedApps) {
+        final packageName = app.packageName;
 
-          // Check if this app is in our monitored list and package name is not null
-          if (packageName != null && appNameMap.containsKey(packageName)) {
-            final appName = appNameMap[packageName]!;
-            final appIcon = await fetchIcon(packageName);
+        // Check if this app is in our monitored list
+        if (appNameMap.containsKey(packageName)) {
+          final appName = appNameMap[packageName]!;
+          Uint8List appIcon;
 
-            monitoredApps.add(AppInfo(
-              packageName: packageName,
-              appName: appName,
-              appIcon: appIcon,
-            ));
+          if (app is ApplicationWithIcon) {
+            appIcon = Uint8List.fromList(app.icon);
+          } else {
+            appIcon = await _getDefaultIcon();
           }
+
+          monitoredApps.add(AppInfo(
+            packageName: packageName,
+            appName: appName,
+            appIcon: appIcon,
+          ));
         }
       }
 

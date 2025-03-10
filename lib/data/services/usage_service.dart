@@ -1,5 +1,5 @@
 import 'package:usage_stats/usage_stats.dart';
-import 'package:android_package_manager/android_package_manager.dart';
+import 'package:device_apps/device_apps.dart';
 import '../../constants.dart';
 import '../models/app_event.dart';
 import '../models/app_usage.dart';
@@ -33,7 +33,6 @@ class AppUsageSummary {
 }
 
 class UsageService {
-  final _packageManager = AndroidPackageManager();
   Uint8List? _defaultIcon;
 
   /// Checks and requests usage permission
@@ -56,8 +55,11 @@ class UsageService {
 
   Future<Uint8List> fetchIcon(String packageName) async {
     try {
-      final icon = await _packageManager.getApplicationIcon(packageName: packageName);
-      return icon ?? await _getDefaultIcon();
+      final app = await DeviceApps.getApp(packageName, true);
+      if (app != null && app is ApplicationWithIcon) {
+        return Uint8List.fromList(app.icon);
+      }
+      return await _getDefaultIcon();
     } catch (_) {
       return await _getDefaultIcon();
     }
@@ -225,7 +227,7 @@ class UsageService {
     for (var summary in summaries) {
       developer.log('${summary.appName}: ${summary.totalDurationText} (${summary.sessions.length} sessions)');
     }
-    
+
     summaries.sort((a, b) => b.totalDurationSeconds.compareTo(a.totalDurationSeconds));
 
     return summaries;

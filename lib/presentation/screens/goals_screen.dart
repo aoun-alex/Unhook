@@ -32,6 +32,11 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    // Load goals when the screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(activeGoalsProvider.notifier).loadGoals();
+    });
   }
 
   @override
@@ -114,7 +119,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
             Icon(
               Icons.app_shortcut_outlined,
               size: 64,
-              color: Colors.tealAccent.withAlpha(128),
+              color: Colors.tealAccent.withOpacity(0.5),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -137,23 +142,31 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
       );
     }
 
-    return ListView.builder(
-      itemCount: goals.length,
-      itemBuilder: (context, index) {
-        final goal = goals[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: AppLimitCard(
-            appName: goal.appName,
-            appIcon: goal.appIcon,
-            packageName: goal.packageName,
-            currentUsage: goal.currentUsage,
-            limitInMinutes: goal.limitInMinutes,
-            category: goal.category,
-            isLimitReached: goal.isLimitReached,
-          ),
-        );
+    return RefreshIndicator(
+      color: Colors.tealAccent,
+      backgroundColor: Colors.grey[850],
+      onRefresh: () async {
+        // Refresh goals from database
+        await ref.read(activeGoalsProvider.notifier).loadGoals();
       },
+      child: ListView.builder(
+        itemCount: goals.length,
+        itemBuilder: (context, index) {
+          final goal = goals[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: AppLimitCard(
+              appName: goal.appName,
+              appIcon: goal.appIcon,
+              packageName: goal.packageName,
+              currentUsage: goal.currentUsage,
+              limitInMinutes: goal.limitInMinutes,
+              category: goal.category,
+              isLimitReached: goal.isLimitReached,
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -165,7 +178,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
           Icon(
             Icons.emoji_events,
             size: 64,
-            color: Colors.tealAccent.withAlpha(128),
+            color: Colors.tealAccent.withOpacity(0.5),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -252,7 +265,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.tealAccent.withValues(alpha: 0.2),
+                            color: Colors.tealAccent.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
@@ -317,9 +330,9 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           // Save the new goal
-                          ref.read(activeGoalsProvider.notifier).addGoal(
+                          await ref.read(activeGoalsProvider.notifier).addGoal(
                             appName: selectedApp.appName,
                             packageName: selectedApp.packageName,
                             appIcon: selectedApp.appIcon,

@@ -1,51 +1,65 @@
 import 'dart:typed_data';
-import '../../data/models/goal_limit.dart';
+import '../models/goal_limit.dart';
+import '../database/database_helper.dart';
 
 class GoalService {
-  // In-memory storage for goals (for now)
-  static final List<GoalLimit> _goals = [];
+  final DatabaseHelper _dbHelper = DatabaseHelper();
 
   // Get all active goals
-  List<GoalLimit> getActiveGoals() {
-    return List.from(_goals);
+  Future<List<GoalLimit>> getActiveGoals() async {
+    return await _dbHelper.getGoals();
   }
 
   // Add a new goal
-  void addGoal({
+  Future<void> addGoal({
     required String appName,
     required String packageName,
     required Uint8List? appIcon,
     required int limitInMinutes,
     required String category,
-  }) {
-    // First check if a goal for this app already exists
-    final existingIndex = _goals.indexWhere((goal) => goal.packageName == packageName);
+  }) async {
+    final goal = GoalLimit(
+      appName: appName,
+      packageName: packageName,
+      appIcon: appIcon,
+      limitInMinutes: limitInMinutes,
+      currentUsage: 0, // Start with zero usage
+      category: category,
+    );
 
-    if (existingIndex != -1) {
-      // Update existing goal
-      _goals[existingIndex] = GoalLimit(
-        appName: appName,
-        packageName: packageName,
-        appIcon: appIcon,
-        limitInMinutes: limitInMinutes,
-        currentUsage: _goals[existingIndex].currentUsage,
-        category: category,
-      );
-    } else {
-      // Add new goal
-      _goals.add(GoalLimit(
-        appName: appName,
-        packageName: packageName,
-        appIcon: appIcon,
-        limitInMinutes: limitInMinutes,
-        currentUsage: 0, // Start with zero usage
-        category: category,
-      ));
-    }
+    await _dbHelper.insertGoal(goal);
+  }
+
+  // Update an existing goal
+  Future<void> updateGoal({
+    required String appName,
+    required String packageName,
+    required Uint8List? appIcon,
+    required int limitInMinutes,
+    required int currentUsage,
+    required String category,
+    bool isLimitReached = false,
+  }) async {
+    final goal = GoalLimit(
+      appName: appName,
+      packageName: packageName,
+      appIcon: appIcon,
+      limitInMinutes: limitInMinutes,
+      currentUsage: currentUsage,
+      category: category,
+      isLimitReached: isLimitReached,
+    );
+
+    await _dbHelper.updateGoal(goal);
   }
 
   // Remove a goal
-  void removeGoal(String packageName) {
-    _goals.removeWhere((goal) => goal.packageName == packageName);
+  Future<void> removeGoal(String packageName) async {
+    await _dbHelper.deleteGoal(packageName);
+  }
+
+  // Update usage for a goal
+  Future<void> updateUsage(String packageName, int currentUsage, bool isLimitReached) async {
+    await _dbHelper.updateUsage(packageName, currentUsage, isLimitReached);
   }
 }

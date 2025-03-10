@@ -1,7 +1,10 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/goals_provider.dart';
+import '../dialogs/edit_goal_dialog.dart';
 
-class AppLimitCard extends StatelessWidget {
+class AppLimitCard extends ConsumerWidget {
   final String appName;
   final Uint8List? appIcon;
   final String packageName;
@@ -22,7 +25,7 @@ class AppLimitCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final double progress = currentUsage / limitInMinutes;
     final Color progressColor = isLimitReached
         ? Colors.redAccent
@@ -79,11 +82,38 @@ class AppLimitCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                IconButton(
+                PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert, color: Colors.white70),
-                  onPressed: () {
-                    // Handle more options
+                  color: const Color(0xFF2A2A2A),
+                  onSelected: (String value) {
+                    if (value == 'edit') {
+                      _showEditDialog(context, ref);
+                    } else if (value == 'delete') {
+                      _showDeleteConfirmation(context, ref);
+                    }
                   },
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit, color: Colors.white70),
+                          SizedBox(width: 8),
+                          Text('Edit', style: TextStyle(color: Colors.white)),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, color: Colors.redAccent),
+                          SizedBox(width: 8),
+                          Text('Delete', style: TextStyle(color: Colors.white)),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -126,6 +156,58 @@ class AppLimitCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  // Show delete confirmation dialog
+  void _showDeleteConfirmation(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1E1E1E),
+          title: const Text('Delete Goal', style: TextStyle(color: Colors.white)),
+          content: Text(
+            'Are you sure you want to delete the goal for $appName?',
+            style: const TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+            ),
+            TextButton(
+              onPressed: () {
+                ref.read(activeGoalsProvider.notifier).removeGoal(packageName);
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.redAccent,
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Show edit dialog
+  void _showEditDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return EditGoalDialog(
+          appName: appName,
+          packageName: packageName,
+          appIcon: appIcon,
+          currentLimitInMinutes: limitInMinutes,
+          currentUsage: currentUsage,
+          currentCategory: category,
+        );
+      },
     );
   }
 }

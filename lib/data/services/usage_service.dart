@@ -232,4 +232,27 @@ class UsageService {
 
     return summaries;
   }
+
+  /// Get usage for a specific app by package name for today
+  Future<int> getAppUsageToday(String packageName) async {
+    try {
+      DateTime now = DateTime.now();
+      DateTime startOfDay = DateTime(now.year, now.month, now.day, 0, 0);
+
+      List<AppUsageSummary> summaries = await getUsageForPeriod(startOfDay, now);
+
+      // Find the app in the summaries
+      for (var summary in summaries) {
+        if (summary.packageName == packageName) {
+          return summary.totalDurationSeconds;
+        }
+      }
+
+      // App not found in summaries, return 0
+      return 0;
+    } catch (e) {
+      developer.log('Error getting app usage: $e');
+      return 0;
+    }
+  }
 }

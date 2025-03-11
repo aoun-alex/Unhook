@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dashboard_screen.dart';
 import 'goals_screen.dart';
 import 'placeholder_screens.dart';
+import '../../providers/goals_provider.dart';
+import 'dart:async';
 
-class MainScreen extends StatefulWidget {
+class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  ConsumerState<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObserver {
   int _selectedIndex = 0;
+  Timer? _syncTimer;
 
   final List<Widget> _screens = [
     const DashboardScreen(),
@@ -19,6 +23,41 @@ class _MainScreenState extends State<MainScreen> {
     const MindfulScreen(),
     const SettingsScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    // Set up periodic sync every 5 minutes
+    _syncTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      _syncUsage();
+    });
+
+    // Initial sync
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _syncUsage();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _syncTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Sync when app is resumed
+    if (state == AppLifecycleState.resumed) {
+      _syncUsage();
+    }
+  }
+
+  void _syncUsage() {
+    ref.read(activeGoalsProvider.notifier).syncUsage();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +77,11 @@ class _MainScreenState extends State<MainScreen> {
             setState(() {
               _selectedIndex = index;
             });
+
+            // Sync when switching to goals tab
+            if (index == 1) {
+              _syncUsage();
+            }
           },
           destinations: const [
             NavigationDestination(

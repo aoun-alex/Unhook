@@ -2,26 +2,49 @@ import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/goal_limit.dart';
 import '../data/services/goal_service.dart';
+import '../data/services/usage_service.dart';
+import '../data/services/usage_sync_service.dart';
+import '../data/database/database_helper.dart';
 
 final goalServiceProvider = Provider<GoalService>((ref) {
   return GoalService();
 });
 
+final usageServiceProvider = Provider<UsageService>((ref) {
+  return UsageService();
+});
+
+final databaseHelperProvider = Provider<DatabaseHelper>((ref) {
+  return DatabaseHelper();
+});
+
+final usageSyncServiceProvider = Provider<UsageSyncService>((ref) {
+  final usageService = ref.read(usageServiceProvider);
+  final dbHelper = ref.read(databaseHelperProvider);
+  return UsageSyncService(usageService, dbHelper);
+});
+
 // Provider for active goals
 final activeGoalsProvider = StateNotifierProvider<GoalsNotifier, List<GoalLimit>>((ref) {
   final goalService = ref.read(goalServiceProvider);
-  return GoalsNotifier(goalService);
+  final syncService = ref.read(usageSyncServiceProvider);
+  return GoalsNotifier(goalService, syncService);
 });
 
 class GoalsNotifier extends StateNotifier<List<GoalLimit>> {
   final GoalService _goalService;
+  final UsageSyncService _syncService;
 
-  GoalsNotifier(this._goalService) : super([]) {
+  GoalsNotifier(this._goalService, this._syncService) : super([]) {
     // Load goals on initialization
     loadGoals();
   }
 
   Future<void> loadGoals() async {
+    // First sync usage data
+    await _syncService.syncUsageWithGoals();
+
+    // Then load updated goals
     final goals = await _goalService.getActiveGoals();
     state = goals;
   }
@@ -71,6 +94,12 @@ class GoalsNotifier extends StateNotifier<List<GoalLimit>> {
 
   Future<void> updateUsage(String packageName, int currentUsage, bool isLimitReached) async {
     await _goalService.updateUsage(packageName, currentUsage, isLimitReached);
+    await loadGoals();
+  }
+
+  // Method to manually trigger sync
+  Future<void> syncUsage() async {
+    await _syncService.syncUsageWithGoals();
     await loadGoals();
   }
 }

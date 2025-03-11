@@ -66,13 +66,25 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              const Text(
-                'Goals',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Goals',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.refresh, color: Colors.tealAccent),
+                    onPressed: () {
+                      // Manually refresh goals and usage data
+                      ref.read(activeGoalsProvider.notifier).syncUsage();
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
 
@@ -146,8 +158,8 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
       color: Colors.tealAccent,
       backgroundColor: Colors.grey[850],
       onRefresh: () async {
-        // Refresh goals from database
-        await ref.read(activeGoalsProvider.notifier).loadGoals();
+        // Refresh goals and sync usage data
+        await ref.read(activeGoalsProvider.notifier).syncUsage();
       },
       child: ListView.builder(
         itemCount: goals.length,

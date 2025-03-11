@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/services/usage_service.dart';
 
+// This provider is duplicated in goals_provider.dart now - we'll keep it here for backward compatibility
 final usageServiceProvider = Provider<UsageService>((ref) => UsageService());
 
 final todayUsageSummaryProvider = FutureProvider<List<AppUsageSummary>>((ref) async {

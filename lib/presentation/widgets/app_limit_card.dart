@@ -31,6 +31,12 @@ class AppLimitCard extends ConsumerWidget {
         ? Colors.redAccent
         : (progress > 0.8 ? Colors.orangeAccent : Colors.tealAccent);
 
+    // Calculate remaining minutes
+    final int remainingMinutes = isLimitReached ? 0 : (limitInMinutes - currentUsage);
+    final String remainingText = isLimitReached
+        ? 'Limit Reached'
+        : '$remainingMinutes min remaining';
+
     return Card(
       color: const Color(0xFF1E1E1E),
       elevation: 2,
@@ -132,7 +138,7 @@ class AppLimitCard extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      isLimitReached ? 'Limit Reached' : '${((1 - progress) * 100).toInt()}% remaining',
+                      remainingText,
                       style: TextStyle(
                         color: progressColor,
                         fontSize: 14,
@@ -145,7 +151,7 @@ class AppLimitCard extends ConsumerWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
-                    value: progress,
+                    value: progress.clamp(0.0, 1.0), // Ensure value is between 0 and 1
                     backgroundColor: Colors.grey[800],
                     valueColor: AlwaysStoppedAnimation<Color>(progressColor),
                     minHeight: 8,

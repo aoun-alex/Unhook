@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Unhook</string>
+    <string name="accessibility_description">Unhook uses this service to track app usage in real-time and help you manage your digital wellbeing.</string>
+    <string name="tracker_service_notification_title">Unhook is monitoring your usage</string>
+    <string name="tracker_service_notification_content">Tracking your app usage to help you stay mindful</string>
+</resources>

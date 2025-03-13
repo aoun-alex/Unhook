@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dashboard_screen.dart';
 import 'goals_screen.dart';
 import 'placeholder_screens.dart';
+import 'tracking_test_screen.dart';
 import '../../providers/goals_provider.dart';
+import '../../providers/real_time_tracking_provider.dart';
 import 'dart:async';
 
 class MainScreen extends ConsumerStatefulWidget {
@@ -20,7 +22,7 @@ class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObse
   final List<Widget> _screens = [
     const DashboardScreen(),
     const GoalsScreen(),
-    const MindfulScreen(),
+    const TrackingTestScreen(), // New tracking test screen
     const SettingsScreen(),
   ];
 
@@ -28,6 +30,9 @@ class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObse
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    // Initialize real-time tracking
+    ref.read(realTimeTrackingServiceProvider);
 
     // Set up periodic sync every 5 minutes
     _syncTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
@@ -97,7 +102,7 @@ class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObse
             NavigationDestination(
               icon: Icon(Icons.psychology, color: Colors.white70),
               selectedIcon: Icon(Icons.psychology, color: Colors.tealAccent),
-              label: 'Mindful',
+              label: 'Real-time',
             ),
             NavigationDestination(
               icon: Icon(Icons.settings, color: Colors.white70),

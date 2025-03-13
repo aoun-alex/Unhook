@@ -26,6 +26,7 @@ import android.app.usage.UsageStats
 import android.app.usage.UsageStatsManager
 import java.util.SortedMap
 import java.util.TreeMap
+import android.content.Context.RECEIVER_NOT_EXPORTED
 
 class UnhookTrackerService : Service() {
     companion object {
@@ -75,7 +76,7 @@ class UnhookTrackerService : Service() {
             addAction(ACTION_START_MANUAL_TRACKING)
             addAction(ACTION_STOP_MANUAL_TRACKING)
         }
-        registerReceiver(appLaunchReceiver, filter)
+        registerReceiver(appLaunchReceiver, filter, RECEIVER_NOT_EXPORTED)
 
         // Start as foreground service
         startForeground(Constants.TRACKER_SERVICE_NOTIFICATION_ID, createNotification())

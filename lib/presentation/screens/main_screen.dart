@@ -20,7 +20,7 @@ class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObse
   final List<Widget> _screens = [
     const DashboardScreen(),
     const GoalsScreen(),
-    const MindfulScreen(),
+    const MindfulScreen(), // Using the placeholder MindfulScreen
     const SettingsScreen(),
   ];
 
@@ -95,9 +95,9 @@ class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObse
               label: 'Goals',
             ),
             NavigationDestination(
-              icon: Icon(Icons.psychology, color: Colors.white70),
-              selectedIcon: Icon(Icons.psychology, color: Colors.tealAccent),
-              label: 'Mindful',
+              icon: Icon(Icons.self_improvement, color: Colors.white70), // Changed icon for Mindful
+              selectedIcon: Icon(Icons.self_improvement, color: Colors.tealAccent),
+              label: 'Mindful', // Changed label
             ),
             NavigationDestination(
               icon: Icon(Icons.settings, color: Colors.white70),

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Unhook</string>
+    <string name="accessibility_description">Unhook uses this service to track app usage in real-time and help you manage your digital wellbeing.</string>
+    <string name="tracker_service_notification_title">Unhook is monitoring your usage</string>
+    <string name="tracker_service_notification_content">Tracking your app usage to help you stay mindful</string>
+
+    <!-- New notification strings -->
+    <string name="warning_channel_name">Usage Warnings</string>
+    <string name="warning_channel_description">Notifications when you approach your app usage limits</string>
+    <string name="alert_channel_name">Limit Alerts</string>
+    <string name="alert_channel_description">Important notifications when you reach or nearly reach your limits</string>
+
+    <string name="approaching_limit_title">Approaching Time Limit</string>
+    <string name="approaching_limit_text">You\'ve used %2$d minutes of your %3$d minute limit for %1$s today</string>
+
+    <string name="near_limit_title">Almost at Time Limit</string>
+    <string name="near_limit_text">You\'ve used %2$d minutes out of your %3$d minute limit for %1$s. Only %4$d minutes left!</string>
+
+    <string name="limit_reached_title">Time Limit Reached</string>
+    <string name="limit_reached_text">You\'ve used %2$d minutes of your %3$d minute limit for %1$s today. Take a break!</string>
+</resources>

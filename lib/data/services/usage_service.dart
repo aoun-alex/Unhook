@@ -233,7 +233,7 @@ class UsageService {
     return summaries;
   }
 
-  /// Get usage for a specific app by package name for today
+  /// Get usage for a specific app by package name for today in seconds
   Future<int> getAppUsageToday(String packageName) async {
     try {
       DateTime now = DateTime.now();
@@ -252,6 +252,17 @@ class UsageService {
       return 0;
     } catch (e) {
       developer.log('Error getting app usage: $e');
+      return 0;
+    }
+  }
+
+  /// Get usage for a specific app by package name for today in minutes
+  Future<int> getAppUsageTodayMinutes(String packageName) async {
+    try {
+      int seconds = await getAppUsageToday(packageName);
+      return (seconds / 60).ceil(); // Convert to minutes and round up
+    } catch (e) {
+      developer.log('Error getting app usage in minutes: $e');
       return 0;
     }
   }

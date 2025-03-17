@@ -21,8 +21,9 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'unhook_database.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2, // Incrementing version for migration
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -36,9 +37,27 @@ class DatabaseHelper {
         limitInMinutes INTEGER NOT NULL,
         currentUsage INTEGER NOT NULL,
         category TEXT NOT NULL,
-        isLimitReached INTEGER NOT NULL
+        isLimitReached INTEGER NOT NULL,
+        lastCheckTime INTEGER NOT NULL,
+        notifiedAt80Percent INTEGER NOT NULL DEFAULT 0,
+        notifiedAt95Percent INTEGER NOT NULL DEFAULT 0,
+        nextCheckTime INTEGER
       )
     ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Add new columns for monitoring
+      await db.execute('ALTER TABLE goals ADD COLUMN lastCheckTime INTEGER NOT NULL DEFAULT 0');
+      await db.execute('ALTER TABLE goals ADD COLUMN notifiedAt80Percent INTEGER NOT NULL DEFAULT 0');
+      await db.execute('ALTER TABLE goals ADD COLUMN notifiedAt95Percent INTEGER NOT NULL DEFAULT 0');
+      await db.execute('ALTER TABLE goals ADD COLUMN nextCheckTime INTEGER');
+
+      // Initialize lastCheckTime to current time for existing goals
+      final currentTime = DateTime.now().millisecondsSinceEpoch;
+      await db.execute('UPDATE goals SET lastCheckTime = $currentTime');
+    }
   }
 
   // CRUD Operations for GoalLimit
@@ -56,6 +75,10 @@ class DatabaseHelper {
         'currentUsage': goal.currentUsage,
         'category': goal.category,
         'isLimitReached': goal.isLimitReached ? 1 : 0,
+        'lastCheckTime': goal.lastCheckTime,
+        'notifiedAt80Percent': goal.notifiedAt80Percent ? 1 : 0,
+        'notifiedAt95Percent': goal.notifiedAt95Percent ? 1 : 0,
+        'nextCheckTime': goal.nextCheckTime,
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
@@ -75,6 +98,38 @@ class DatabaseHelper {
         currentUsage: maps[i]['currentUsage'],
         category: maps[i]['category'],
         isLimitReached: maps[i]['isLimitReached'] == 1,
+        lastCheckTime: maps[i]['lastCheckTime'] ?? 0,
+        notifiedAt80Percent: maps[i]['notifiedAt80Percent'] == 1,
+        notifiedAt95Percent: maps[i]['notifiedAt95Percent'] == 1,
+        nextCheckTime: maps[i]['nextCheckTime'],
+      );
+    });
+  }
+
+  // Get goals that need checking
+  Future<List<GoalLimit>> getGoalsToCheck() async {
+    final db = await database;
+    final currentTime = DateTime.now().millisecondsSinceEpoch;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      'goals',
+      where: 'nextCheckTime IS NULL OR nextCheckTime <= ?',
+      whereArgs: [currentTime],
+    );
+
+    return List.generate(maps.length, (i) {
+      return GoalLimit(
+        appName: maps[i]['appName'],
+        packageName: maps[i]['packageName'],
+        appIcon: maps[i]['appIcon'],
+        limitInMinutes: maps[i]['limitInMinutes'],
+        currentUsage: maps[i]['currentUsage'],
+        category: maps[i]['category'],
+        isLimitReached: maps[i]['isLimitReached'] == 1,
+        lastCheckTime: maps[i]['lastCheckTime'] ?? 0,
+        notifiedAt80Percent: maps[i]['notifiedAt80Percent'] == 1,
+        notifiedAt95Percent: maps[i]['notifiedAt95Percent'] == 1,
+        nextCheckTime: maps[i]['nextCheckTime'],
       );
     });
   }
@@ -91,6 +146,10 @@ class DatabaseHelper {
         'currentUsage': goal.currentUsage,
         'category': goal.category,
         'isLimitReached': goal.isLimitReached ? 1 : 0,
+        'lastCheckTime': goal.lastCheckTime,
+        'notifiedAt80Percent': goal.notifiedAt80Percent ? 1 : 0,
+        'notifiedAt95Percent': goal.notifiedAt95Percent ? 1 : 0,
+        'nextCheckTime': goal.nextCheckTime,
       },
       where: 'packageName = ?',
       whereArgs: [goal.packageName],
@@ -108,16 +167,42 @@ class DatabaseHelper {
   }
 
   // Update usage for a specific goal
-  Future<int> updateUsage(String packageName, int currentUsage, bool isLimitReached) async {
+  Future<int> updateUsage(
+      String packageName,
+      int currentUsage,
+      bool isLimitReached,
+      int lastCheckTime,
+      bool notifiedAt80Percent,
+      bool notifiedAt95Percent,
+      int? nextCheckTime,
+      ) async {
     final db = await database;
     return await db.update(
       'goals',
       {
         'currentUsage': currentUsage,
         'isLimitReached': isLimitReached ? 1 : 0,
+        'lastCheckTime': lastCheckTime,
+        'notifiedAt80Percent': notifiedAt80Percent ? 1 : 0,
+        'notifiedAt95Percent': notifiedAt95Percent ? 1 : 0,
+        'nextCheckTime': nextCheckTime,
       },
       where: 'packageName = ?',
       whereArgs: [packageName],
+    );
+  }
+
+  // Reset notification flags (e.g., for a new day)
+  Future<void> resetNotificationFlags() async {
+    final db = await database;
+    await db.update(
+      'goals',
+      {
+        'notifiedAt80Percent': 0,
+        'notifiedAt95Percent': 0,
+        'currentUsage': 0,
+        'isLimitReached': 0,
+      },
     );
   }
 }

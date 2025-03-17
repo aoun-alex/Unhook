@@ -8,12 +8,8 @@
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
-    <!-- New permissions for real-time tracking -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:label="unhook"
@@ -29,10 +25,6 @@
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
 
-            <!-- Specifies an Android theme to apply to this Activity as soon as
-                 the Android process has started. This theme is visible to the user
-                 while the Flutter UI initializes. After that, this theme continues
-                 to determine the Window background behind the Flutter UI. -->
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme"
@@ -44,7 +36,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Add service for accessibility tracking -->
+        <!-- Add service for accessibility tracking (optional but useful for real-time detection) -->
         <service
             android:name=".services.UnhookAccessibilityService"
             android:exported="false"
@@ -57,13 +49,6 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
-        <!-- Add service for tracking -->
-        <service
-            android:name=".services.UnhookTrackerService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="dataSync" />
-
         <!-- Boot receiver for restart on device boot -->
         <receiver
             android:name=".receivers.BootReceiver"
@@ -75,8 +60,12 @@
             </intent-filter>
         </receiver>
 
-        <!-- Don't delete the meta-data below.
-             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <!-- Provider for WorkManager initialization - simplified -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false" />
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

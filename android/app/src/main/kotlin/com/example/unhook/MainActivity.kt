@@ -1,41 +1,68 @@
 package com.example.unhook
 
-import android.content.ComponentName
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
-import android.os.IBinder
+import android.content.IntentFilter
+import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import androidx.annotation.NonNull
-import com.example.unhook.services.UnhookAccessibilityService
-import com.example.unhook.services.UnhookTrackerService
+import androidx.work.WorkManager
 import com.example.unhook.utils.Constants
+import com.example.unhook.workers.UsageCheckWorker
+import com.example.unhook.workers.DailyResetWorker
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
     companion object {
         private const val TAG = "Unhook.MainActivity"
+        private const val USAGE_EVENTS_CHANNEL = "com.example.unhook/usage_events"
     }
 
     private var methodChannel: MethodChannel? = null
-    private var trackerService: UnhookTrackerService? = null
-    private var boundToService = false
+    private var eventChannel: EventChannel? = null
+    private var eventSink: EventChannel.EventSink? = null
 
-    private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            val binder = service as UnhookTrackerService.LocalBinder
-            trackerService = binder.getService()
-            boundToService = true
-            Log.d(TAG, "Bound to tracker service")
+    private val usageUpdateReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == Constants.ACTION_USAGE_UPDATE) {
+                val packageName = intent.getStringExtra(Constants.EXTRA_PACKAGE_NAME) ?: return
+                val usageMinutes = intent.getIntExtra(Constants.EXTRA_USAGE_MINUTES, 0)
+                val limitReached = intent.getBooleanExtra(Constants.EXTRA_LIMIT_REACHED, false)
+
+                // Send the data to Flutter via event channel
+                val eventData = HashMap<String, Any>()
+                eventData["type"] = "usage_update"
+                eventData["packageName"] = packageName
+                eventData["usageMinutes"] = usageMinutes
+                eventData["limitReached"] = limitReached
+
+                eventSink?.success(eventData)
+            } else if (intent?.action == Constants.ACTION_CHECK_ALL_APP_USAGE) {
+                // Notify Flutter to check all app usage
+                val eventData = HashMap<String, Any>()
+                eventData["type"] = "check_all_apps"
+                eventSink?.success(eventData)
+            } else if (intent?.action == Constants.ACTION_RESET_USAGE_DATA) {
+                // Notify Flutter to reset usage data
+                val eventData = HashMap<String, Any>()
+                eventData["type"] = "reset_usage_data"
+                eventSink?.success(eventData)
+            }
+        }
+    }
+
+    private val streamHandler = object : EventChannel.StreamHandler {
+        override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+            eventSink = events
         }
 
-        override fun onServiceDisconnected(name: ComponentName?) {
-            trackerService = null
-            boundToService = false
-            Log.d(TAG, "Unbound from tracker service")
+        override fun onCancel(arguments: Any?) {
+            eventSink = null
         }
     }
 
@@ -52,70 +79,79 @@ class MainActivity : FlutterActivity() {
                     requestAccessibilityPermission()
                     result.success(null)
                 }
-                Constants.METHOD_START_TRACKING_SERVICE -> {
-                    startTrackerService()
+                Constants.METHOD_START_USAGE_MONITORING -> {
+                    startUsageMonitoring()
                     result.success(null)
                 }
-                Constants.METHOD_STOP_TRACKING_SERVICE -> {
-                    stopTrackerService()
+                Constants.METHOD_STOP_USAGE_MONITORING -> {
+                    stopUsageMonitoring()
                     result.success(null)
                 }
-                Constants.METHOD_GET_CURRENT_APP -> {
-                    val currentApp = trackerService?.getCurrentApp() ?: ""
-                    result.success(currentApp)
+                Constants.METHOD_CHECK_SPECIFIC_APP_USAGE -> {
+                    val packageName = call.argument<String>("packageName") ?: ""
+                    val limitMinutes = call.argument<Int>("limitMinutes") ?: 0
+                    val appName = call.argument<String>("appName") ?: packageName
+
+                    checkSpecificAppUsage(packageName, limitMinutes, appName)
+                    result.success(null)
                 }
                 else -> result.notImplemented()
             }
         }
 
-        // Bind to tracker service if it's running
-        bindTrackerService()
+        // Set up event channel for receiving updates from workers
+        eventChannel = EventChannel(flutterEngine.dartExecutor.binaryMessenger, USAGE_EVENTS_CHANNEL)
+        eventChannel?.setStreamHandler(streamHandler)
     }
 
-    private fun bindTrackerService() {
-        val intent = Intent(this, UnhookTrackerService::class.java)
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
-    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    private fun isAccessibilityServiceEnabled(): Boolean {
-        val serviceClassName = UnhookAccessibilityService::class.java.canonicalName
-        val enabledServices = Settings.Secure.getString(
-            contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-        ) ?: return false
-
-        return enabledServices.contains(packageName + "/" + serviceClassName)
-    }
-
-    private fun requestAccessibilityPermission() {
-        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-        startActivity(intent)
-    }
-
-    private fun startTrackerService() {
-        val intent = Intent(this, UnhookTrackerService::class.java)
-        startService(intent)
-
-        if (!boundToService) {
-            bindTrackerService()
+        // Register broadcast receiver
+        val filter = IntentFilter().apply {
+            addAction(Constants.ACTION_USAGE_UPDATE)
+            addAction(Constants.ACTION_CHECK_ALL_APP_USAGE)
+            addAction(Constants.ACTION_RESET_USAGE_DATA)
         }
-    }
-
-    private fun stopTrackerService() {
-        val intent = Intent(this, UnhookTrackerService::class.java)
-        stopService(intent)
-
-        if (boundToService) {
-            unbindService(serviceConnection)
-            boundToService = false
-        }
+        registerReceiver(usageUpdateReceiver, filter, RECEIVER_NOT_EXPORTED)
     }
 
     override fun onDestroy() {
-        if (boundToService) {
-            unbindService(serviceConnection)
-            boundToService = false
-        }
+        unregisterReceiver(usageUpdateReceiver)
         super.onDestroy()
+    }
+
+    private fun isAccessibilityServiceEnabled(): Boolean {
+        return Settings.Secure.getString(
+            contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        )?.contains("${packageName}/.services.UnhookAccessibilityService") == true
+    }
+
+    private fun requestAccessibilityPermission() {
+        startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+    }
+
+    private fun startUsageMonitoring() {
+        // Schedule the periodic usage checks
+        UsageCheckWorker.schedulePeriodicCheck(this)
+
+        // Schedule the daily reset
+        DailyResetWorker.scheduleDailyReset(this)
+
+        Log.d(TAG, "Started usage monitoring")
+    }
+
+    private fun stopUsageMonitoring() {
+        // Cancel all work
+        WorkManager.getInstance(this).cancelUniqueWork(UsageCheckWorker.WORK_NAME)
+        WorkManager.getInstance(this).cancelUniqueWork(DailyResetWorker.WORK_NAME)
+
+        Log.d(TAG, "Stopped usage monitoring")
+    }
+
+    private fun checkSpecificAppUsage(packageName: String, limitMinutes: Int, appName: String) {
+        // Schedule an immediate check for a specific app
+        UsageCheckWorker.scheduleIntensiveCheck(this, packageName, limitMinutes, appName, 0)
     }
 }

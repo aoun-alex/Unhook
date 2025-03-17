@@ -4,7 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.example.unhook.services.UnhookTrackerService
+import com.example.unhook.workers.UsageCheckWorker
+import com.example.unhook.workers.DailyResetWorker
 
 class BootReceiver : BroadcastReceiver() {
     companion object {
@@ -15,14 +16,14 @@ class BootReceiver : BroadcastReceiver() {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_MY_PACKAGE_REPLACED -> {
-                Log.d(TAG, "Device rebooted or app updated, starting tracker service")
+                Log.d(TAG, "Device rebooted or app updated, scheduling monitoring")
 
-                // Start the tracker service
+                // Schedule the workers
                 try {
-                    val serviceIntent = Intent(context, UnhookTrackerService::class.java)
-                    context.startService(serviceIntent)
+                    UsageCheckWorker.schedulePeriodicCheck(context)
+                    DailyResetWorker.scheduleDailyReset(context)
                 } catch (e: Exception) {
-                    Log.e(TAG, "Failed to start tracker service", e)
+                    Log.e(TAG, "Failed to schedule monitoring", e)
                 }
             }
         }

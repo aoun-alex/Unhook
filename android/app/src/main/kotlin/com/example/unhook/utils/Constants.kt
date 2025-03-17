@@ -6,11 +6,8 @@ object Constants {
     const val TRACKER_SERVICE_NOTIFICATION_ID = 1001
 
     // Method channel methods
-    const val METHOD_CHECK_ACCESSIBILITY_PERMISSION = "checkAccessibilityPermission"
-    const val METHOD_REQUEST_ACCESSIBILITY_PERMISSION = "requestAccessibilityPermission"
-    const val METHOD_START_TRACKING_SERVICE = "startTrackingService"
-    const val METHOD_STOP_TRACKING_SERVICE = "stopTrackingService"
-    const val METHOD_GET_CURRENT_APP = "getCurrentApp"
+    const val METHOD_CHECK_USAGE_STATS_PERMISSION = "checkUsageStatsPermission"
+    const val METHOD_REQUEST_USAGE_STATS_PERMISSION = "requestUsageStatsPermission"
     const val METHOD_START_USAGE_MONITORING = "startUsageMonitoring"
     const val METHOD_STOP_USAGE_MONITORING = "stopUsageMonitoring"
     const val METHOD_CHECK_SPECIFIC_APP_USAGE = "checkSpecificAppUsage"

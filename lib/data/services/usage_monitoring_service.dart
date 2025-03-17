@@ -24,6 +24,12 @@ class UsageMonitoringService {
   StreamSubscription? _eventsSubscription;
 
   Future<void> initialize() async {
+    // Check and request usage stats permission
+    bool hasPermission = await checkUsageStatsPermission();
+    if (!hasPermission) {
+      await requestUsageStatsPermission();
+    }
+
     // Initialize the broadcast receiver
     _receiver.initialize();
 
@@ -34,6 +40,23 @@ class UsageMonitoringService {
     await startMonitoring();
 
     developer.log('Usage monitoring service initialized');
+  }
+
+  Future<bool> checkUsageStatsPermission() async {
+    try {
+      return await _channel.invokeMethod('checkUsageStatsPermission');
+    } catch (e) {
+      developer.log('Error checking usage stats permission: $e');
+      return false;
+    }
+  }
+
+  Future<void> requestUsageStatsPermission() async {
+    try {
+      await _channel.invokeMethod('requestUsageStatsPermission');
+    } catch (e) {
+      developer.log('Error requesting usage stats permission: $e');
+    }
   }
 
   Future<void> startMonitoring() async {

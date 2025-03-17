@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.app.usage.UsageStatsManager
+import android.app.usage.UsageEvents
+import android.app.usage.UsageStats
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
@@ -169,7 +171,7 @@ class UsageCheckWorker(
         // This method would communicate with Flutter to get all apps with limits
         // and check their usage
 
-        // For now, we'll just trigger the method channel to ask Flutter to perform the check
+        // Trigger the method channel to ask Flutter to perform the check
         val intent = Intent(Constants.ACTION_CHECK_ALL_APP_USAGE)
         intent.setPackage(appContext.packageName)
         appContext.sendBroadcast(intent)
@@ -190,7 +192,7 @@ class UsageCheckWorker(
         val startTime = calendar.timeInMillis
         val endTime = System.currentTimeMillis()
 
-        // Query usage stats
+        // Query usage stats for today
         val stats = usageStatsManager.queryUsageStats(
             UsageStatsManager.INTERVAL_DAILY,
             startTime,
@@ -213,38 +215,58 @@ class UsageCheckWorker(
 
         Log.d(TAG, "App usage for $packageName: $usageMinutes min (${percentUsed.toInt()}% of limit)")
 
+        // Check if notification flags are already set for today
+        val sharedPrefs = appContext.getSharedPreferences("notification_flags", Context.MODE_PRIVATE)
+        val todayDate = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date())
+
+        val limitReachedFlagKey = "${packageName}_limit_reached_$todayDate"
+        val nearLimitFlagKey = "${packageName}_near_limit_$todayDate"
+        val approachingLimitFlagKey = "${packageName}_approaching_limit_$todayDate"
+
+        val limitReachedNotified = sharedPrefs.getBoolean(limitReachedFlagKey, false)
+        val nearLimitNotified = sharedPrefs.getBoolean(nearLimitFlagKey, false)
+        val approachingLimitNotified = sharedPrefs.getBoolean(approachingLimitFlagKey, false)
+
+        // Update Flutter about the current usage in all cases
+        val isLimitReached = percentUsed >= 100
+        sendUsageUpdateToDart(packageName, usageMinutes, isLimitReached)
+
         // Check if we need to show notifications or schedule more checks
         when {
-            percentUsed >= 100 -> {
-                // Limit reached
+            percentUsed >= 100 && !limitReachedNotified -> {
+                // Limit reached and not yet notified for today
                 showLimitReachedNotification(packageName, usageMinutes, limitMinutes, appName)
 
-                // Update Flutter about the current usage
-                sendUsageUpdateToDart(packageName, usageMinutes, true)
+                // Save that we've shown this notification today
+                sharedPrefs.edit().putBoolean(limitReachedFlagKey, true).apply()
             }
-            percentUsed >= 95 -> {
-                // Near limit (95%+)
+            percentUsed >= 95 && !nearLimitNotified -> {
+                // Near limit (95%+) and not yet notified for today
                 showNearLimitNotification(packageName, usageMinutes, limitMinutes, appName)
+
+                // Save that we've shown this notification today
+                sharedPrefs.edit().putBoolean(nearLimitFlagKey, true).apply()
 
                 // Schedule more frequent checks
                 scheduleIntensiveCheck(appContext, packageName, limitMinutes, appName, 2)
-
-                // Update Flutter about the current usage
-                sendUsageUpdateToDart(packageName, usageMinutes, false)
             }
-            percentUsed >= 80 -> {
-                // Approaching limit (80%+)
+            percentUsed >= 80 && !approachingLimitNotified -> {
+                // Approaching limit (80%+) and not yet notified for today
                 showApproachingLimitNotification(packageName, usageMinutes, limitMinutes, appName)
+
+                // Save that we've shown this notification today
+                sharedPrefs.edit().putBoolean(approachingLimitFlagKey, true).apply()
 
                 // Schedule more frequent checks
                 scheduleIntensiveCheck(appContext, packageName, limitMinutes, appName, 5)
-
-                // Update Flutter about the current usage
-                sendUsageUpdateToDart(packageName, usageMinutes, false)
             }
-            else -> {
-                // Under 80%, just update Flutter
-                sendUsageUpdateToDart(packageName, usageMinutes, false)
+            percentUsed >= 95 -> {
+                // Already notified, but still near limit, schedule checks
+                scheduleIntensiveCheck(appContext, packageName, limitMinutes, appName, 2)
+            }
+            percentUsed >= 80 -> {
+                // Already notified, but still approaching limit, schedule checks
+                scheduleIntensiveCheck(appContext, packageName, limitMinutes, appName, 5)
             }
         }
     }

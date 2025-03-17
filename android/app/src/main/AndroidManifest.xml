@@ -36,19 +36,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Add service for accessibility tracking (optional but useful for real-time detection) -->
-        <service
-            android:name=".services.UnhookAccessibilityService"
-            android:exported="false"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accessibilityservice"
-                android:resource="@xml/accessibility_service_config" />
-        </service>
-
         <!-- Boot receiver for restart on device boot -->
         <receiver
             android:name=".receivers.BootReceiver"

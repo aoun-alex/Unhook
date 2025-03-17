@@ -64,6 +64,9 @@ class DailyResetWorker(
         try {
             Log.d(TAG, "Running daily usage reset")
 
+            // Reset notification flags in SharedPreferences
+            resetNotificationFlags()
+
             // Send broadcast to Flutter to reset the usage data
             val intent = Intent(Constants.ACTION_RESET_USAGE_DATA)
             intent.setPackage(appContext.packageName)
@@ -76,6 +79,17 @@ class DailyResetWorker(
         } catch (e: Exception) {
             Log.e(TAG, "Error in daily reset worker", e)
             Result.retry()
+        }
+    }
+
+    private fun resetNotificationFlags() {
+        try {
+            val sharedPrefs = appContext.getSharedPreferences("notification_flags", Context.MODE_PRIVATE)
+            // Just clear all the flags
+            sharedPrefs.edit().clear().apply()
+            Log.d(TAG, "Notification flags reset successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error resetting notification flags", e)
         }
     }
 }

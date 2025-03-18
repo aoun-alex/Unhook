@@ -14,6 +14,7 @@ class DashboardScreen extends ConsumerStatefulWidget {
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   bool _isDaily = true;
+  bool _isRefreshing = false;
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +30,31 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              Text(
-                _isDaily ? 'Today\'s Focus' : 'This Week\'s Progress',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _isDaily ? 'Today\'s Focus' : 'This Week\'s Progress',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: _isRefreshing
+                        ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.tealAccent,
+                      ),
+                    )
+                        : const Icon(Icons.refresh, color: Colors.tealAccent),
+                    onPressed: _isRefreshing ? null : _refreshData,
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               SegmentedButton<bool>(
@@ -105,6 +124,28 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
+  Future<void> _refreshData() async {
+    if (_isRefreshing) return;
+
+    setState(() {
+      _isRefreshing = true;
+    });
+
+    try {
+      if (_isDaily) {
+        // Use the return value by awaiting it
+        ref.refresh(todayUsageSummaryProvider).value;
+      } else {
+        // Use the return value by awaiting it
+        ref.refresh(weeklyUsageSummaryProvider).value;
+      }
+    } finally {
+      setState(() {
+        _isRefreshing = false;
+      });
+    }
+  }
+
   Widget _buildUsageContent({
     required List<AppUsageSummary> summaries,
     required String chartTitle,
@@ -136,28 +177,33 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         const SizedBox(height: 8),
         Expanded(
-          child: ListView.builder(
-            itemCount: summaries.length,
-            itemBuilder: (context, index) {
-              final summary = summaries[index];
-              return ListTile(
-                leading: summary.appIcon != null
-                    ? Image.memory(summary.appIcon!, width: 40, height: 40)
-                    : const SizedBox(width: 40, height: 40),
-                title: Text(summary.appName,
-                    style: const TextStyle(color: Colors.white)),
-                trailing: Text(
-                  summary.totalDurationText,
-                  style: const TextStyle(color: Colors.tealAccent),
-                ),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DetailedUsageScreen(summary: summary),
+          child: RefreshIndicator(
+            color: Colors.tealAccent,
+            backgroundColor: Colors.grey[850],
+            onRefresh: _refreshData,
+            child: ListView.builder(
+              itemCount: summaries.length,
+              itemBuilder: (context, index) {
+                final summary = summaries[index];
+                return ListTile(
+                  leading: summary.appIcon != null
+                      ? Image.memory(summary.appIcon!, width: 40, height: 40)
+                      : const SizedBox(width: 40, height: 40),
+                  title: Text(summary.appName,
+                      style: const TextStyle(color: Colors.white)),
+                  trailing: Text(
+                    summary.totalDurationText,
+                    style: const TextStyle(color: Colors.tealAccent),
                   ),
-                ),
-              );
-            },
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailedUsageScreen(summary: summary),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ],

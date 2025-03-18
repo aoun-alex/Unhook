@@ -6,9 +6,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.app.usage.UsageStatsManager
-import android.app.usage.UsageEvents
-import android.app.usage.UsageStats
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
@@ -23,6 +22,8 @@ import com.example.unhook.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
+import android.app.usage.UsageStatsManager
+import android.app.usage.UsageEvents
 
 class UsageCheckWorker(
     private val appContext: Context,
@@ -45,6 +46,9 @@ class UsageCheckWorker(
         // Notification IDs - use a base and add app hash to avoid collisions
         const val NOTIFICATION_ID_WARNING = 2001
         const val NOTIFICATION_ID_LIMIT = 3001
+
+        // Main thread handler for UI operations
+        private val mainHandler = Handler(Looper.getMainLooper())
 
         // Schedule a standard periodic check
         fun schedulePeriodicCheck(context: Context) {
@@ -180,35 +184,8 @@ class UsageCheckWorker(
     private suspend fun checkSpecificApp(packageName: String, limitMinutes: Int, appName: String) {
         Log.d(TAG, "Checking specific app: $packageName")
 
-        // Get the usage stats manager
-        val usageStatsManager = appContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-
-        // Calculate timeframe (today)
-        val calendar = java.util.Calendar.getInstance()
-        calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
-        calendar.set(java.util.Calendar.MINUTE, 0)
-        calendar.set(java.util.Calendar.SECOND, 0)
-
-        val startTime = calendar.timeInMillis
-        val endTime = System.currentTimeMillis()
-
-        // Query usage stats for today
-        val stats = usageStatsManager.queryUsageStats(
-            UsageStatsManager.INTERVAL_DAILY,
-            startTime,
-            endTime
-        )
-
-        // Find the stats for our package
-        var totalTimeInForeground = 0L
-        for (stat in stats) {
-            if (stat.packageName == packageName) {
-                totalTimeInForeground += stat.totalTimeInForeground
-            }
-        }
-
-        // Convert to minutes
-        val usageMinutes = (totalTimeInForeground / (1000 * 60)).toInt()
+        // Get app usage statistics directly
+        val usageMinutes = getAppUsageMinutes(packageName)
 
         // Calculate percentage of limit
         val percentUsed = (usageMinutes.toDouble() / limitMinutes.toDouble()) * 100
@@ -268,6 +245,68 @@ class UsageCheckWorker(
                 // Already notified, but still approaching limit, schedule checks
                 scheduleIntensiveCheck(appContext, packageName, limitMinutes, appName, 5)
             }
+        }
+    }
+
+    // Get app usage using the same algorithm as in Flutter UsageService
+    private fun getAppUsageMinutes(packageName: String): Int {
+        try {
+            val usageStatsManager = appContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+
+            // Calculate timeframe (today)
+            val calendar = java.util.Calendar.getInstance()
+            calendar.set(java.util.Calendar.HOUR_OF_DAY, 0)
+            calendar.set(java.util.Calendar.MINUTE, 0)
+            calendar.set(java.util.Calendar.SECOND, 0)
+
+            val startTime = calendar.timeInMillis
+            val endTime = System.currentTimeMillis()
+
+            // Query for events
+            val usageEvents = usageStatsManager.queryEvents(startTime, endTime)
+
+            // Store events in a list, with their event type and timestamp
+            val packageEvents = mutableListOf<Pair<Int, Long>>()
+            val event = UsageEvents.Event()
+
+            while (usageEvents.hasNextEvent()) {
+                usageEvents.getNextEvent(event)
+                if (event.packageName == packageName) {
+                    // Store the event type and timestamp
+                    packageEvents.add(Pair(event.eventType, event.timeStamp))
+                }
+            }
+
+            // Sort events by timestamp
+            packageEvents.sortBy { it.second }
+
+            // Calculate usage duration similar to Flutter code
+            var totalDurationSeconds = 0L
+
+            for (i in 0 until packageEvents.size - 1) {
+                val (currentType, currentTime) = packageEvents[i]
+                val (nextType, nextTime) = packageEvents[i + 1]
+
+                // If this is an activity resume and the next is a pause/stop
+                if (currentType == UsageEvents.Event.ACTIVITY_RESUMED &&
+                    (nextType == UsageEvents.Event.ACTIVITY_PAUSED ||
+                            nextType == UsageEvents.Event.ACTIVITY_STOPPED)) {
+
+                    val sessionDuration = nextTime - currentTime
+                    val durationSeconds = sessionDuration / 1000
+
+                    // Only count sessions longer than a minute (60 seconds)
+                    if (durationSeconds >= 60) {
+                        totalDurationSeconds += durationSeconds
+                    }
+                }
+            }
+
+            // Convert to minutes and round up as needed
+            return ((totalDurationSeconds + 59) / 60).toInt()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting app usage: ${e.message}")
+            return 0
         }
     }
 

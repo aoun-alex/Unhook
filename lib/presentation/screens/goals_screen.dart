@@ -48,6 +48,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     final goals = ref.watch(activeGoalsProvider);
+    final isLoading = ref.watch(goalsLoadingProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
@@ -77,12 +78,27 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh, color: Colors.tealAccent),
-                    onPressed: () {
-                      // Manually refresh goals and usage data
-                      ref.read(activeGoalsProvider.notifier).syncUsage();
-                    },
+                  Row(
+                    children: [
+                      if (isLoading)
+                        const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.tealAccent,
+                          ),
+                        ),
+                      IconButton(
+                        icon: const Icon(Icons.refresh, color: Colors.tealAccent),
+                        onPressed: isLoading
+                            ? null // Disable while loading
+                            : () {
+                          // Manually refresh goals and usage data
+                          ref.read(activeGoalsProvider.notifier).syncUsage();
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -110,7 +126,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildActiveLimitsTab(goals),
+                    _buildActiveLimitsTab(goals, isLoading),
                     _buildCompletedTab(),
                   ],
                 ),
@@ -122,8 +138,8 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
     );
   }
 
-  Widget _buildActiveLimitsTab(List<GoalLimit> goals) {
-    if (goals.isEmpty) {
+  Widget _buildActiveLimitsTab(List<GoalLimit> goals, bool isLoading) {
+    if (goals.isEmpty && !isLoading) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -277,7 +293,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.tealAccent.withValues(alpha: 0.2),
+                            color: Colors.tealAccent.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(

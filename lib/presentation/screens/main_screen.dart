@@ -20,7 +20,7 @@ class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObse
   final List<Widget> _screens = [
     const DashboardScreen(),
     const GoalsScreen(),
-    const MindfulScreen(), // Using the placeholder MindfulScreen
+    const MindfulScreen(),
     const SettingsScreen(),
   ];
 

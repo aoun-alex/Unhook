@@ -90,6 +90,17 @@ class UsageMonitoringService {
     }
   }
 
+  Future<void> cancelIntensiveChecks(String packageName) async {
+    try {
+      await _channel.invokeMethod('cancelIntensiveChecks', {
+        'packageName': packageName,
+      });
+      developer.log('Cancelled intensive checks for $packageName');
+    } catch (e) {
+      developer.log('Error cancelling intensive checks: $e');
+    }
+  }
+
   void _handleEvent(UsageEvent event) async {
     if (event is UsageUpdateEvent) {
       await _handleUsageUpdate(event);

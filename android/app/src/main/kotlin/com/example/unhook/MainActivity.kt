@@ -96,6 +96,11 @@ class MainActivity : FlutterActivity() {
                     checkSpecificAppUsage(packageName, limitMinutes, appName)
                     result.success(null)
                 }
+                Constants.METHOD_CANCEL_INTENSIVE_CHECKS -> {
+                    val packageName = call.argument<String>("packageName") ?: ""
+                    cancelIntensiveChecks(packageName)
+                    result.success(null)
+                }
                 else -> result.notImplemented()
             }
         }
@@ -165,5 +170,10 @@ class MainActivity : FlutterActivity() {
     private fun checkSpecificAppUsage(packageName: String, limitMinutes: Int, appName: String) {
         // Schedule an immediate check for a specific app
         UsageCheckWorker.scheduleIntensiveCheck(this, packageName, limitMinutes, appName, 0)
+    }
+
+    private fun cancelIntensiveChecks(packageName: String) {
+        // Cancel all intensive checks for a specific app
+        UsageCheckWorker.cancelIntensiveChecks(this, packageName)
     }
 }

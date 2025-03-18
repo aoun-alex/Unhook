@@ -210,6 +210,9 @@ class GoalsNotifier extends StateNotifier<List<GoalLimit>> {
   }) async {
     final now = DateTime.now().millisecondsSinceEpoch;
 
+    // Cancel any existing intensive checks for this app
+    await _monitoringService.cancelIntensiveChecks(packageName);
+
     final goal = state.firstWhere(
           (g) => g.packageName == packageName,
       orElse: () => GoalLimit(

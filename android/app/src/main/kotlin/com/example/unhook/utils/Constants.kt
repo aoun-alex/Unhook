@@ -11,6 +11,7 @@ object Constants {
     const val METHOD_START_USAGE_MONITORING = "startUsageMonitoring"
     const val METHOD_STOP_USAGE_MONITORING = "stopUsageMonitoring"
     const val METHOD_CHECK_SPECIFIC_APP_USAGE = "checkSpecificAppUsage"
+    const val METHOD_CANCEL_INTENSIVE_CHECKS = "cancelIntensiveChecks"
 
     // Broadcast actions for communication with Flutter
     const val ACTION_CHECK_ALL_APP_USAGE = "com.example.unhook.CHECK_ALL_APP_USAGE"

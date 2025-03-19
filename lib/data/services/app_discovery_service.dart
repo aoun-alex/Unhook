@@ -47,7 +47,7 @@ class AppDiscoveryService {
     try {
       // Get all installed apps
       final installedApps = await DeviceApps.getInstalledApplications(
-        includeSystemApps: false,
+        includeSystemApps: true, // Include system apps because of YouTube
         includeAppIcons: true,
       );
 

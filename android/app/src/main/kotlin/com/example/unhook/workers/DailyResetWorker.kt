@@ -68,9 +68,14 @@ class DailyResetWorker(
             resetNotificationFlags()
 
             // Send broadcast to Flutter to reset the usage data
-            val intent = Intent(Constants.ACTION_RESET_USAGE_DATA)
-            intent.setPackage(appContext.packageName)
-            appContext.sendBroadcast(intent)
+            val resetIntent = Intent(Constants.ACTION_RESET_USAGE_DATA)
+            resetIntent.setPackage(appContext.packageName)
+            appContext.sendBroadcast(resetIntent)
+
+            // Send additional broadcast to evaluate streak
+            val streakIntent = Intent(Constants.ACTION_EVALUATE_STREAK)
+            streakIntent.setPackage(appContext.packageName)
+            appContext.sendBroadcast(streakIntent)
 
             // Schedule the regular usage checks
             UsageCheckWorker.schedulePeriodicCheck(appContext)

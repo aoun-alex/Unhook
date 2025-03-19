@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../models/goal_limit.dart';
 import 'usage_broadcast_receiver.dart';
 import 'usage_service.dart';
+import 'streak_service.dart';
 import '../database/database_helper.dart';
 import 'dart:developer' as developer;
 
@@ -108,6 +109,8 @@ class UsageMonitoringService {
       await _handleCheckAllApps();
     } else if (event is ResetUsageDataEvent) {
       await _handleResetUsageData();
+    } else if (event is EvaluateStreakEvent) {
+      await _handleEvaluateStreak();
     }
   }
 
@@ -244,6 +247,33 @@ class UsageMonitoringService {
       developer.log('Usage data reset completed');
     } catch (e) {
       developer.log('Error resetting usage data: $e');
+    }
+  }
+
+  Future<void> _handleEvaluateStreak() async {
+    developer.log('Evaluating streak status from broadcast');
+
+    try {
+      // Import the streak service provider at the method level to avoid circular dependencies
+      final streakServiceProvider = _importStreakServiceProvider();
+      if (streakServiceProvider != null) {
+        // Manually trigger streak evaluation
+        await streakServiceProvider().evaluateDailyStreak();
+        developer.log('Streak evaluation completed');
+      }
+    } catch (e) {
+      developer.log('Error evaluating streak: $e');
+    }
+  }
+
+  // Helper method to import streak service provider to avoid circular dependencies
+  dynamic _importStreakServiceProvider() {
+    try {
+      // This imports the provider at runtime to avoid circular dependencies
+      return () => StreakService(DatabaseHelper());
+    } catch (e) {
+      developer.log('Error importing streak service: $e');
+      return null;
     }
   }
 

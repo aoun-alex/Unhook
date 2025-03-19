@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/app_limit_card.dart';
 import '../widgets/streak_indicator.dart';
+import '../widgets/streak_calendar.dart';
 import '../widgets/minutes_slider.dart';
 import '../../providers/goals_provider.dart';
+import '../../providers/streak_provider.dart';
 import '../dialogs/app_selection_dialog.dart';
 import '../../data/models/goal_limit.dart';
 
@@ -36,6 +38,9 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
     // Load goals when the screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(activeGoalsProvider.notifier).loadGoals();
+
+      // Evaluate streak to ensure it's up to date
+      ref.read(streakNotifierProvider.notifier).evaluateStreak();
     });
   }
 
@@ -96,6 +101,9 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                             : () {
                           // Manually refresh goals and usage data
                           ref.read(activeGoalsProvider.notifier).syncUsage();
+
+                          // Re-evaluate streak
+                          ref.read(streakNotifierProvider.notifier).evaluateStreak();
                         },
                       ),
                     ],
@@ -104,11 +112,11 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
               ),
               const SizedBox(height: 24),
 
-              // Streak indicator
-              const StreakIndicator(currentStreak: 5),
+              // Updated streak indicator that uses the provider
+              const StreakIndicator(),
               const SizedBox(height: 24),
 
-              // Tab bar for different categories
+              // Tab bar for different views
               TabBar(
                 controller: _tabController,
                 indicatorColor: Colors.tealAccent,
@@ -116,7 +124,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                 unselectedLabelColor: Colors.white70,
                 tabs: const [
                   Tab(text: 'Active'),
-                  Tab(text: 'Completed'),
+                  Tab(text: 'Calendar'), // Changed from 'Completed' to 'Calendar'
                 ],
               ),
               const SizedBox(height: 16),
@@ -127,7 +135,7 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
                   controller: _tabController,
                   children: [
                     _buildActiveLimitsTab(goals, isLoading),
-                    _buildCompletedTab(),
+                    _buildCalendarTab(), // New calendar tab
                   ],
                 ),
               ),
@@ -176,6 +184,9 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
       onRefresh: () async {
         // Refresh goals and sync usage data
         await ref.read(activeGoalsProvider.notifier).syncUsage();
+
+        // Also re-evaluate streak
+        await ref.read(streakNotifierProvider.notifier).evaluateStreak();
       },
       child: ListView.builder(
         itemCount: goals.length,
@@ -198,27 +209,8 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
     );
   }
 
-  Widget _buildCompletedTab() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.emoji_events,
-            size: 64,
-            color: Colors.tealAccent.withAlpha(128),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Completed goals will appear here',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
+  Widget _buildCalendarTab() {
+    return const StreakCalendar();
   }
 
   // Show app selection dialog

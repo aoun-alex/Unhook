@@ -17,6 +17,7 @@ object Constants {
     const val ACTION_CHECK_ALL_APP_USAGE = "com.example.unhook.CHECK_ALL_APP_USAGE"
     const val ACTION_USAGE_UPDATE = "com.example.unhook.USAGE_UPDATE"
     const val ACTION_RESET_USAGE_DATA = "com.example.unhook.RESET_USAGE_DATA"
+    const val ACTION_EVALUATE_STREAK = "com.example.unhook.EVALUATE_STREAK"
 
     // Extra keys for broadcast intents
     const val EXTRA_USAGE_MINUTES = "com.example.unhook.usageMinutes"

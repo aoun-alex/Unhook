@@ -53,6 +53,11 @@ class MainActivity : FlutterActivity() {
                 val eventData = HashMap<String, Any>()
                 eventData["type"] = "reset_usage_data"
                 eventSink?.success(eventData)
+            } else if (intent?.action == Constants.ACTION_EVALUATE_STREAK) {
+                // Notify Flutter to evaluate streak
+                val eventData = HashMap<String, Any>()
+                eventData["type"] = "evaluate_streak"
+                eventSink?.success(eventData)
             }
         }
     }
@@ -118,6 +123,7 @@ class MainActivity : FlutterActivity() {
             addAction(Constants.ACTION_USAGE_UPDATE)
             addAction(Constants.ACTION_CHECK_ALL_APP_USAGE)
             addAction(Constants.ACTION_RESET_USAGE_DATA)
+            addAction(Constants.ACTION_EVALUATE_STREAK)
         }
         registerReceiver(usageUpdateReceiver, filter, RECEIVER_NOT_EXPORTED)
     }

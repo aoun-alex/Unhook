@@ -52,6 +52,10 @@ class UsageBroadcastReceiver {
         _eventController.add(ResetUsageDataEvent());
         break;
 
+      case 'evaluate_streak':
+        _eventController.add(EvaluateStreakEvent());
+        break;
+
       default:
         developer.log('Unknown event type: $type');
     }
@@ -88,3 +92,5 @@ class UsageUpdateEvent extends UsageEvent {
 class CheckAllAppsEvent extends UsageEvent {}
 
 class ResetUsageDataEvent extends UsageEvent {}
+
+class EvaluateStreakEvent extends UsageEvent {}

@@ -3,6 +3,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import '../../data/models/goal_limit.dart';
 import '../../data/models/usage_snapshot.dart';
+import '../../data/models/streak_record.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -22,7 +23,7 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'unhook_database.db');
     return await openDatabase(
       path,
-      version: 3, // Incrementing version for migration
+      version: 4, // Incrementing version for streak feature migration
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -60,6 +61,36 @@ class DatabaseHelper {
       CREATE INDEX idx_usage_snapshots_package_date 
       ON usage_snapshots(packageName, date)
     ''');
+
+    // Create streak_data table
+    await db.execute('''
+      CREATE TABLE streak_data(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        currentStreak INTEGER NOT NULL DEFAULT 0,
+        longestStreak INTEGER NOT NULL DEFAULT 0,
+        lastStreakDate TEXT,
+        lastCheckDate TEXT
+      )
+    ''');
+
+    // Create daily_records table to track streak history
+    await db.execute('''
+      CREATE TABLE daily_records(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL UNIQUE,
+        streakDay INTEGER NOT NULL DEFAULT 0,
+        allLimitsRespected INTEGER NOT NULL DEFAULT 1,
+        timestamp INTEGER NOT NULL
+      )
+    ''');
+
+    // Initialize streak data with a single row
+    await db.insert('streak_data', {
+      'currentStreak': 0,
+      'longestStreak': 0,
+      'lastStreakDate': null,
+      'lastCheckDate': null,
+    });
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -91,6 +122,40 @@ class DatabaseHelper {
         CREATE INDEX IF NOT EXISTS idx_usage_snapshots_package_date 
         ON usage_snapshots(packageName, date)
       ''');
+    }
+
+    if (oldVersion < 4) {
+      // Add streak-related tables
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS streak_data(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          currentStreak INTEGER NOT NULL DEFAULT 0,
+          longestStreak INTEGER NOT NULL DEFAULT 0,
+          lastStreakDate TEXT,
+          lastCheckDate TEXT
+        )
+      ''');
+
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS daily_records(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          date TEXT NOT NULL UNIQUE,
+          streakDay INTEGER NOT NULL DEFAULT 0,
+          allLimitsRespected INTEGER NOT NULL DEFAULT 1,
+          timestamp INTEGER NOT NULL
+        )
+      ''');
+
+      // Initialize streak data with a single row
+      final existingData = await db.query('streak_data');
+      if (existingData.isEmpty) {
+        await db.insert('streak_data', {
+          'currentStreak': 0,
+          'longestStreak': 0,
+          'lastStreakDate': null,
+          'lastCheckDate': null,
+        });
+      }
     }
   }
 
@@ -336,5 +401,134 @@ class DatabaseHelper {
     }
 
     return snapshots;
+  }
+
+  // Streak-related methods
+
+  // Get current streak data
+  Future<Map<String, dynamic>> getStreakData() async {
+    final db = await database;
+    final result = await db.query('streak_data');
+
+    if (result.isEmpty) {
+      // Initialize if not exists
+      final id = await db.insert('streak_data', {
+        'currentStreak': 0,
+        'longestStreak': 0,
+        'lastStreakDate': null,
+        'lastCheckDate': null,
+      });
+      return {
+        'id': id,
+        'currentStreak': 0,
+        'longestStreak': 0,
+        'lastStreakDate': null,
+        'lastCheckDate': null,
+      };
+    }
+
+    return result.first;
+  }
+
+  // Update streak data
+  Future<void> updateStreakData(int currentStreak, int longestStreak, String? lastStreakDate, String lastCheckDate) async {
+    final db = await database;
+    await db.update(
+      'streak_data',
+      {
+        'currentStreak': currentStreak,
+        'longestStreak': longestStreak,
+        'lastStreakDate': lastStreakDate,
+        'lastCheckDate': lastCheckDate,
+      },
+      where: 'id = 1',
+    );
+  }
+
+  // Record a daily streak status
+  Future<void> recordDailyStreak(String date, bool allLimitsRespected, int streakDay) async {
+    final db = await database;
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    // Use INSERT OR REPLACE to handle the UNIQUE constraint on date
+    await db.insert(
+      'daily_records',
+      {
+        'date': date,
+        'streakDay': streakDay,
+        'allLimitsRespected': allLimitsRespected ? 1 : 0,
+        'timestamp': now,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  // Get all daily records for a date range
+  Future<List<StreakRecord>> getDailyRecords(DateTime startDate, DateTime endDate) async {
+    final db = await database;
+
+    final startDateStr = "${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}";
+    final endDateStr = "${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}";
+
+    final result = await db.query(
+      'daily_records',
+      where: 'date >= ? AND date <= ?',
+      whereArgs: [startDateStr, endDateStr],
+      orderBy: 'date ASC',
+    );
+
+    return result.map((record) => StreakRecord(
+      date: record['date'] as String,
+      streakDay: record['streakDay'] as int,
+      allLimitsRespected: record['allLimitsRespected'] == 1,
+      timestamp: record['timestamp'] as int,
+    )).toList();
+  }
+
+  // Get a specific daily record
+  Future<StreakRecord?> getDailyRecord(String date) async {
+    final db = await database;
+
+    final result = await db.query(
+      'daily_records',
+      where: 'date = ?',
+      whereArgs: [date],
+      limit: 1,
+    );
+
+    if (result.isEmpty) {
+      return null;
+    }
+
+    return StreakRecord(
+      date: result[0]['date'] as String,
+      streakDay: result[0]['streakDay'] as int,
+      allLimitsRespected: result[0]['allLimitsRespected'] == 1,
+      timestamp: result[0]['timestamp'] as int,
+    );
+  }
+
+  // Check if any limit was exceeded for a specific date
+  Future<bool> wasAnyLimitExceededOnDate(String date) async {
+    final db = await database;
+
+    // Check if there's a record for this date
+    final record = await getDailyRecord(date);
+    if (record != null) {
+      // Return the stored value
+      return !record.allLimitsRespected;
+    }
+
+    // If no record exists, use the usage snapshots to determine
+    final goals = await getGoals();
+
+    for (final goal in goals) {
+      final snapshot = await getLatestUsageSnapshot(goal.packageName, date);
+      if (snapshot != null && snapshot.usageMinutes > goal.limitInMinutes) {
+        return true; // At least one limit was exceeded
+      }
+    }
+
+    return false; // No limits were exceeded
   }
 }

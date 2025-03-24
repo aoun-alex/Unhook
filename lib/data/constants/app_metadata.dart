@@ -32,55 +32,6 @@ const Map<String, AppMetadata> appMetadataMap = {
     ],
   ),
 
-  'com.facebook.katana': AppMetadata(
-    displayName: 'Facebook',
-    category: AppCategories.socialMedia,
-    alternatives: [
-      Alternative(
-        title: 'Call a Friend',
-        description: 'Direct connection is more meaningful than scrolling through updates',
-        isOfflineActivity: true,
-        icon: Icons.call,
-        category: 'Offline Activity',
-      ),
-      Alternative(
-        title: 'Meetup',
-        description: 'Find in-person social events aligned with your interests',
-        packageName: 'com.meetup',
-        icon: Icons.groups,
-        category: 'App Alternative',
-      ),
-      Alternative(
-        title: 'Journal',
-        description: 'Write down your thoughts instead of posting them online',
-        isOfflineActivity: true,
-        icon: Icons.book,
-        category: 'Offline Activity',
-      ),
-    ],
-  ),
-
-  'com.facebook.lite': AppMetadata(
-    displayName: 'Facebook Lite',
-    category: AppCategories.socialMedia,
-    alternatives: [
-      Alternative(
-        title: 'Community Volunteering',
-        description: 'Connect with people while making a difference',
-        isOfflineActivity: true,
-        icon: Icons.volunteer_activism,
-        category: 'Offline Activity',
-      ),
-      Alternative(
-        title: 'Signal',
-        description: 'Privacy-focused messaging with friends and family',
-        packageName: 'org.thoughtcrime.securesms',
-        icon: Icons.message,
-        category: 'App Alternative',
-      ),
-    ],
-  ),
-
   'com.zhiliaoapp.musically': AppMetadata(
     displayName: 'TikTok',
     category: AppCategories.socialMedia,
@@ -89,7 +40,7 @@ const Map<String, AppMetadata> appMetadataMap = {
         title: 'Learn a Dance',
         description: 'Practice a choreography in real life instead of just watching',
         isOfflineActivity: true,
-        icon: Icons.dance_ballroom,
+        icon: Icons.person,  // Replaced dance_ballroom with a standard icon
         category: 'Offline Activity',
       ),
       Alternative(
@@ -117,7 +68,7 @@ const Map<String, AppMetadata> appMetadataMap = {
         title: 'Learn a Dance',
         description: 'Practice a choreography in real life instead of just watching',
         isOfflineActivity: true,
-        icon: Icons.dance_ballroom,
+        icon: Icons.person,  // Replaced dance_ballroom with a standard icon
         category: 'Offline Activity',
       ),
       Alternative(
@@ -145,7 +96,7 @@ const Map<String, AppMetadata> appMetadataMap = {
         title: 'Learn a Dance',
         description: 'Practice a choreography in real life instead of just watching',
         isOfflineActivity: true,
-        icon: Icons.dance_ballroom,
+        icon: Icons.person,  // Replaced dance_ballroom with a standard icon
         category: 'Offline Activity',
       ),
       Alternative(

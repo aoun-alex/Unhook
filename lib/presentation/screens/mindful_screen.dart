@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/alternatives_section.dart';
-import '../widgets/alternative_card.dart';
 import '../../providers/alternatives_provider.dart';
 import '../../providers/pinned_alternatives_provider.dart';
 import '../../providers/goals_provider.dart';
@@ -50,7 +49,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
       await ref.read(pinnedAlternativesNotifierProvider.notifier).reloadPinnedAlternatives();
 
       // Refresh personalized alternatives
-      ref.refresh(personalizedAlternativesProvider);
+      ref.refresh(personalizedAlternativesProvider).value;
     } finally {
       if (mounted) {
         setState(() {
@@ -257,7 +256,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
             onPressed: () {
               // Navigate to goals tab
               // We can't use named routes, so we'll use the bottom navigation
-              DefaultTabController.of(context)?.animateTo(1); // Tab index for Goals
+              DefaultTabController.of(context).animateTo(1); // Tab index for Goals
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.tealAccent,

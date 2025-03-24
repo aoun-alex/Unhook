@@ -1,9 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/services/alternatives_service.dart';
-import '../data/database/database_helper.dart';
 import '../data/models/alternative_model.dart';
-import '../data/models/goal_limit.dart';
 import 'goals_provider.dart';
+import 'pinned_alternatives_provider.dart';
 
 /// Provider for the alternatives service
 final alternativesServiceProvider = Provider<AlternativesService>((ref) {
@@ -58,8 +57,10 @@ class AlternativeActionsNotifier extends StateNotifier<AsyncValue<void>> {
 
     try {
       final result = await _alternativesService.pinAlternative(alternative, sourceAppPackage);
+
       // Refresh pinned alternatives
-      _ref.refresh(pinnedAlternativesProvider);
+      await _ref.refresh(pinnedAlternativesNotifierProvider.notifier).reloadPinnedAlternatives();
+
       return result;
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
@@ -75,8 +76,10 @@ class AlternativeActionsNotifier extends StateNotifier<AsyncValue<void>> {
 
     try {
       final result = await _alternativesService.unpinAlternative(title);
+
       // Refresh pinned alternatives
-      _ref.refresh(pinnedAlternativesProvider);
+      await _ref.refresh(pinnedAlternativesNotifierProvider.notifier).reloadPinnedAlternatives();
+
       return result;
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);

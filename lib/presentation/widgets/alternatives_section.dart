@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/alternative_model.dart';
 import '../../providers/pinned_alternatives_provider.dart';
 import 'alternative_card.dart';
+import '../../providers/alternatives_provider.dart';
 
 /// A section widget that displays a group of alternatives
 class AlternativesSection extends StatelessWidget {
@@ -422,10 +423,3 @@ class OfflineAlternativesSection extends ConsumerWidget {
     );
   }
 }
-
-/// Provider for offline alternatives
-final offlineAlternativesProvider = Provider<List<Map<String, dynamic>>>((ref) {
-  // This would come from the alternatives service
-  // For now, returning an empty list as a placeholder
-  return [];
-});

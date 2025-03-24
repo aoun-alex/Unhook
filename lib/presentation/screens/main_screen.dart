@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dashboard_screen.dart';
 import 'goals_screen.dart';
-import 'placeholder_screens.dart';
+import 'mindful_screen.dart'; // Updated import for our new MindfulScreen
+import 'placeholder_screens.dart'; // Still using this for SettingsScreen
 import '../../providers/goals_provider.dart';
 import 'dart:async';
 
@@ -20,7 +21,7 @@ class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObse
   final List<Widget> _screens = [
     const DashboardScreen(),
     const GoalsScreen(),
-    const MindfulScreen(),
+    const MindfulScreen(), // Using our new MindfulScreen implementation
     const SettingsScreen(),
   ];
 
@@ -95,9 +96,9 @@ class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObse
               label: 'Goals',
             ),
             NavigationDestination(
-              icon: Icon(Icons.self_improvement, color: Colors.white70), // Changed icon for Mindful
+              icon: Icon(Icons.self_improvement, color: Colors.white70),
               selectedIcon: Icon(Icons.self_improvement, color: Colors.tealAccent),
-              label: 'Mindful', // Changed label
+              label: 'Mindful',
             ),
             NavigationDestination(
               icon: Icon(Icons.settings, color: Colors.white70),

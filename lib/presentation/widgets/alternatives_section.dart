@@ -68,16 +68,10 @@ class AlternativesSection extends StatelessWidget {
           const SizedBox(height: 8),
         ],
 
-        // Alternatives grid
-        GridView.builder(
+        // Alternatives list - Changed from GridView to ListView
+        ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.8,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
           itemCount: sortedAlternatives.length,
           itemBuilder: (context, index) {
             final alternativeData = sortedAlternatives[index];
@@ -85,17 +79,20 @@ class AlternativesSection extends StatelessWidget {
             final appName = alternativeData['appName'] as String;
             final packageName = alternativeData['packageName'] as String;
 
-            return AlternativeCard(
-              alternative: alternative,
-              sourceAppName: appName,
-              sourceAppPackage: packageName,
-              showSourceApp: showSourceApps,
-              isPinnedSection: isPinnedSection,
-              onTap: () {
-                if (onAlternativeTap != null) {
-                  onAlternativeTap!(alternativeData);
-                }
-              },
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: AlternativeCard(
+                alternative: alternative,
+                sourceAppName: appName,
+                sourceAppPackage: packageName,
+                showSourceApp: showSourceApps,
+                isPinnedSection: isPinnedSection,
+                onTap: () {
+                  if (onAlternativeTap != null) {
+                    onAlternativeTap!(alternativeData);
+                  }
+                },
+              ),
             );
           },
         ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/alternative_model.dart';
 import '../../providers/alternatives_provider.dart';
-import '../../providers/pinned_alternatives_provider.dart';
 
 /// A card widget that displays an alternative activity or app
 class AlternativeCard extends ConsumerStatefulWidget {
@@ -180,6 +179,8 @@ class _AlternativeCardState extends ConsumerState<AlternativeCard> {
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
+                          overflow: TextOverflow.ellipsis, // Prevent text overflow
+                          maxLines: 2, // Allow up to 2 lines for title
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -224,6 +225,8 @@ class _AlternativeCardState extends ConsumerState<AlternativeCard> {
                   color: Colors.white70,
                   fontSize: 14,
                 ),
+                maxLines: 4, // Limit to 4 lines to prevent excessive height
+                overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
               ),
 
               // Show which app this is an alternative for
@@ -237,12 +240,15 @@ class _AlternativeCardState extends ConsumerState<AlternativeCard> {
                       size: 14,
                     ),
                     const SizedBox(width: 4),
-                    Text(
-                      'Alternative for ${widget.sourceAppName}',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.5),
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
+                    Expanded(
+                      child: Text(
+                        'Alternative for ${widget.sourceAppName}',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.5),
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -319,6 +325,8 @@ class PinnedAlternativeCard extends ConsumerWidget {
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
                     ),
                   ),
 
@@ -346,6 +354,8 @@ class PinnedAlternativeCard extends ConsumerWidget {
                     color: Colors.white70,
                     fontSize: 12,
                   ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -355,6 +365,7 @@ class PinnedAlternativeCard extends ConsumerWidget {
                     fontSize: 10,
                     fontStyle: FontStyle.italic,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ],

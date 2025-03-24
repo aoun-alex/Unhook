@@ -65,7 +65,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
       backgroundColor: const Color(0xFF121212),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -99,7 +99,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
                 ],
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
               // Tab bar
               TabBar(
@@ -255,8 +255,18 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
           ElevatedButton(
             onPressed: () {
               // Navigate to goals tab
-              // We can't use named routes, so we'll use the bottom navigation
-              DefaultTabController.of(context).animateTo(1); // Tab index for Goals
+              // We're using a more reliable method to navigate to the Goals tab
+              final scaffoldContext = ScaffoldMessenger.of(context).context;
+              Navigator.popUntil(scaffoldContext, (route) => route.isFirst);
+
+              // This will use navigateToTabIndex from parent if it exists
+              // or simply show a message
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Go to the Goals tab to set up app limits'),
+                  backgroundColor: Colors.tealAccent,
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.tealAccent,

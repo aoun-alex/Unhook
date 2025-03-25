@@ -88,7 +88,7 @@ class _StreakCalendarState extends ConsumerState<StreakCalendar> {
         IconButton(
           icon: const Icon(Icons.chevron_right, color: Colors.white),
           onPressed: isNextMonthFuture ? null : _nextMonth,
-          disabledColor: Colors.white.withOpacity(0.3),
+          disabledColor: Colors.white.withValues(alpha: 0.3),
         ),
       ],
     );
@@ -180,9 +180,9 @@ class _StreakCalendarState extends ConsumerState<StreakCalendar> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildLegendItem(Colors.grey.withOpacity(0.3), 'No data'),
-          _buildLegendItem(Colors.redAccent.withOpacity(0.5), 'Limit exceeded'),
-          _buildLegendItem(Colors.tealAccent.withOpacity(0.5), 'Within limits'),
+          _buildLegendItem(Colors.grey.withValues(alpha: 0.3), 'No data'),
+          _buildLegendItem(Colors.redAccent.withValues(alpha: 0.5), 'Limit exceeded'),
+          _buildLegendItem(Colors.tealAccent.withValues(alpha: 0.5), 'Within limits'),
           _buildLegendItem(Colors.tealAccent, 'Streak day'),
         ],
       ),
@@ -294,21 +294,21 @@ class CalendarDayCell extends StatelessWidget {
 
     switch (streakStatus) {
       case StreakStatus.noData:
-        backgroundColor = Colors.grey.withOpacity(0.3);
+        backgroundColor = Colors.grey.withValues(alpha: 0.3);
         break;
       case StreakStatus.respected:
-        backgroundColor = Colors.tealAccent.withOpacity(0.5);
+        backgroundColor = Colors.tealAccent.withValues(alpha: 0.5);
         break;
       case StreakStatus.exceeded:
-        backgroundColor = Colors.redAccent.withOpacity(0.5);
+        backgroundColor = Colors.redAccent.withValues(alpha: 0.5);
         break;
       case StreakStatus.streak:
-        backgroundColor = Colors.tealAccent.withOpacity(0.8);
+        backgroundColor = Colors.tealAccent.withValues(alpha: 0.8);
         textColor = Colors.black;
         break;
       case StreakStatus.future:
         backgroundColor = Colors.transparent;
-        textColor = Colors.white.withOpacity(0.3);
+        textColor = Colors.white.withValues(alpha: 0.3);
         break;
     }
 

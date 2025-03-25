@@ -124,8 +124,8 @@ class _AlternativeCardState extends ConsumerState<AlternativeCard> {
 
     // Determine colors based on alternative type
     final Color cardColor = isOffline
-        ? Colors.teal.withOpacity(0.2)
-        : Colors.blue.withOpacity(0.2);
+        ? Colors.tealAccent.withValues(alpha: 0.2)
+        : Colors.tealAccent.withValues(alpha: 0.2);
 
     final Color iconColor = isOffline
         ? Colors.tealAccent
@@ -137,7 +137,7 @@ class _AlternativeCardState extends ConsumerState<AlternativeCard> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: _isPinned ? Colors.tealAccent.withOpacity(0.7) : Colors.transparent,
+          color: _isPinned ? Colors.tealAccent.withValues(alpha: 0.7) : Colors.transparent,
           width: 1.5,
         ),
       ),
@@ -186,7 +186,7 @@ class _AlternativeCardState extends ConsumerState<AlternativeCard> {
                         Text(
                           categoryText,
                           style: TextStyle(
-                            color: iconColor.withOpacity(0.8),
+                            color: iconColor.withValues(alpha: 0.8),
                             fontSize: 12,
                           ),
                         ),
@@ -236,7 +236,7 @@ class _AlternativeCardState extends ConsumerState<AlternativeCard> {
                   children: [
                     Icon(
                       Icons.swap_horiz,
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       size: 14,
                     ),
                     const SizedBox(width: 4),
@@ -244,7 +244,7 @@ class _AlternativeCardState extends ConsumerState<AlternativeCard> {
                       child: Text(
                         'Alternative for ${widget.sourceAppName}',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           fontSize: 12,
                           fontStyle: FontStyle.italic,
                         ),
@@ -293,7 +293,7 @@ class PinnedAlternativeCard extends ConsumerWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(
-          color: Colors.tealAccent.withOpacity(0.5),
+          color: Colors.tealAccent.withValues(alpha: 0.5),
           width: 1,
         ),
       ),
@@ -361,7 +361,7 @@ class PinnedAlternativeCard extends ConsumerWidget {
                 Text(
                   'Alternative for $sourceAppName',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                     fontSize: 10,
                     fontStyle: FontStyle.italic,
                   ),

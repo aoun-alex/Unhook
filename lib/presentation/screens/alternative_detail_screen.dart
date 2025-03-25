@@ -246,7 +246,7 @@ class _AlternativeDetailScreenState extends ConsumerState<AlternativeDetailScree
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.2),
+                      color: primaryColor.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -261,7 +261,7 @@ class _AlternativeDetailScreenState extends ConsumerState<AlternativeDetailScree
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.2),
+                      color: primaryColor.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
@@ -280,7 +280,7 @@ class _AlternativeDetailScreenState extends ConsumerState<AlternativeDetailScree
                   Text(
                     'Alternative for ${widget.sourceAppName}',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 14,
                     ),
                   ),
@@ -475,7 +475,7 @@ class _AlternativeDetailScreenState extends ConsumerState<AlternativeDetailScree
     ]
         : [
       'Download the app from your app store',
-      'Set up your profile with mindful usage in mind',
+      'Set up your profile and preferences',
       'Configure notifications to minimize distractions',
       'Try using it as a replacement when you feel the urge to use ${widget.sourceAppName}',
     ];
@@ -495,7 +495,7 @@ class _AlternativeDetailScreenState extends ConsumerState<AlternativeDetailScree
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: Colors.tealAccent.withOpacity(0.2),
+                  color: Colors.tealAccent.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Center(

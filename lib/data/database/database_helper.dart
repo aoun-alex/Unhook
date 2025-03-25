@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import '../../data/models/goal_limit.dart';
 import '../../data/models/usage_snapshot.dart';
 import '../../data/models/streak_record.dart';
+import 'settings_database_helper.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -23,7 +24,7 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'unhook_database.db');
     return await openDatabase(
       path,
-      version: 4, // Incrementing version for streak feature migration
+      version: 5,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -91,6 +92,8 @@ class DatabaseHelper {
       'lastStreakDate': null,
       'lastCheckDate': null,
     });
+
+    await SettingsDatabaseHelper().initSettingsTable(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -156,6 +159,11 @@ class DatabaseHelper {
           'lastCheckDate': null,
         });
       }
+    }
+
+    if (oldVersion < 5) {
+      // Add settings table
+      await SettingsDatabaseHelper().initSettingsTable(db);
     }
   }
 

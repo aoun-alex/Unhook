@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dashboard_screen.dart';
 import 'goals_screen.dart';
-import 'mindful_screen.dart'; // Updated import for our new MindfulScreen
-import 'placeholder_screens.dart'; // Still using this for SettingsScreen
+import 'mindful_screen.dart';
+import 'settings_screen.dart';
 import '../../providers/goals_provider.dart';
+import '../../providers/settings_provider.dart';
 import 'dart:async';
 
 class MainScreen extends ConsumerStatefulWidget {
@@ -21,8 +22,8 @@ class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObse
   final List<Widget> _screens = [
     const DashboardScreen(),
     const GoalsScreen(),
-    const MindfulScreen(), // Using our new MindfulScreen implementation
-    const SettingsScreen(),
+    const MindfulScreen(),
+    const SettingsScreen(), // Use our new settings screen
   ];
 
   @override
@@ -31,13 +32,17 @@ class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObse
     WidgetsBinding.instance.addObserver(this);
 
     // Set up periodic sync every 5 minutes
-    _syncTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
-      _syncUsage();
-    });
+    _syncTimer = Timer.periodic(
+        const Duration(minutes: 5),
+            (_) => _syncUsage()
+    );
 
     // Initial sync
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _syncUsage();
+
+      // Also load settings
+      ref.read(appSettingsProvider.notifier).loadSettings();
     });
   }
 
@@ -62,12 +67,15 @@ class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObse
 
   @override
   Widget build(BuildContext context) {
+    // Get the accent color from settings
+    final accentColor = ref.watch(accentColorProvider);
+
     return Scaffold(
       body: _screens[_selectedIndex],
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
           backgroundColor: Colors.grey[900]!.withAlpha(242),
-          indicatorColor: Colors.tealAccent.withAlpha(76),
+          indicatorColor: accentColor.withAlpha(76), // Use accent color from settings
           labelTextStyle: WidgetStateProperty.all(
             const TextStyle(fontSize: 12, color: Colors.white),
           ),
@@ -84,25 +92,25 @@ class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObse
               _syncUsage();
             }
           },
-          destinations: const [
+          destinations: [
             NavigationDestination(
-              icon: Icon(Icons.insights, color: Colors.white70),
-              selectedIcon: Icon(Icons.insights, color: Colors.tealAccent),
+              icon: const Icon(Icons.insights, color: Colors.white70),
+              selectedIcon: Icon(Icons.insights, color: accentColor), // Use accent color
               label: 'Insights',
             ),
             NavigationDestination(
-              icon: Icon(Icons.track_changes, color: Colors.white70),
-              selectedIcon: Icon(Icons.track_changes, color: Colors.tealAccent),
+              icon: const Icon(Icons.track_changes, color: Colors.white70),
+              selectedIcon: Icon(Icons.track_changes, color: accentColor), // Use accent color
               label: 'Goals',
             ),
             NavigationDestination(
-              icon: Icon(Icons.self_improvement, color: Colors.white70),
-              selectedIcon: Icon(Icons.self_improvement, color: Colors.tealAccent),
+              icon: const Icon(Icons.self_improvement, color: Colors.white70),
+              selectedIcon: Icon(Icons.self_improvement, color: accentColor), // Use accent color
               label: 'Mindful',
             ),
             NavigationDestination(
-              icon: Icon(Icons.settings, color: Colors.white70),
-              selectedIcon: Icon(Icons.settings, color: Colors.tealAccent),
+              icon: const Icon(Icons.settings, color: Colors.white70),
+              selectedIcon: Icon(Icons.settings, color: accentColor), // Use accent color
               label: 'Settings',
             ),
           ],

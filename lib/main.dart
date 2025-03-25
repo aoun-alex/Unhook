@@ -5,9 +5,10 @@ import 'presentation/screens/main_screen.dart';
 import 'data/services/usage_service.dart';
 import 'data/services/usage_cache_service.dart';
 import 'data/database/database_helper.dart';
-import 'data/database/mindful_database_extension.dart'; // Import the extension
+import 'data/database/mindful_database_extension.dart';
 import 'providers/goals_provider.dart';
-import 'providers/alternatives_provider.dart'; // Import the alternatives provider
+import 'providers/alternatives_provider.dart';
+import 'providers/settings_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,9 +48,13 @@ class MyApp extends ConsumerWidget {
     // Initialize the alternatives service
     ref.watch(alternativesServiceProvider);
 
+    // Get theme settings
+    final isDarkMode = ref.watch(isDarkModeProvider);
+    final accentColor = ref.watch(accentColorProvider);
+
     return MaterialApp(
       title: 'Unhook',
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.getTheme(isDark: isDarkMode, accentColor: accentColor),
       home: const MainScreen(),
     );
   }

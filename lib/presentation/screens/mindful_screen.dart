@@ -150,7 +150,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
             Text(
               'Find healthier alternatives to apps you use frequently. These suggestions are personalized based on your usage patterns.',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 fontSize: 14,
               ),
             ),
@@ -221,7 +221,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.grey[850]!.withOpacity(0.3),
+        color: Colors.grey[850]!.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -229,7 +229,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
         children: [
           Icon(
             Icons.favorite_outline,
-            color: Colors.tealAccent.withOpacity(0.5),
+            color: Colors.tealAccent.withValues(alpha: 0.5),
             size: 48,
           ),
           const SizedBox(height: 16),
@@ -246,7 +246,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
           Text(
             'Set up goals for apps you want to spend less time on to get personalized alternatives.',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               fontSize: 14,
             ),
             textAlign: TextAlign.center,
@@ -291,7 +291,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
           Icon(
             Icons.self_improvement,
             size: 80,
-            color: Colors.tealAccent.withOpacity(0.6),
+            color: Colors.tealAccent.withValues(alpha: 0.6),
           ),
           const SizedBox(height: 24),
           const Text(
@@ -306,7 +306,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
           Text(
             'Coming soon...',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               fontSize: 18,
             ),
           ),
@@ -322,7 +322,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
               'We\'re working on mindfulness exercises and digital wellbeing lessons to help you develop healthier technology habits.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 fontSize: 16,
               ),
             ),

@@ -92,7 +92,7 @@ class _EditGoalDialogState extends ConsumerState<EditGoalDialog> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.tealAccent.withOpacity(0.2),
+                      color: Colors.tealAccent.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(

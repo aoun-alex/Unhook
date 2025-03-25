@@ -2,8 +2,6 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/services/usage_cache_service.dart';
 import '../data/services/usage_service.dart';
-import '../data/models/usage_snapshot.dart';
-import '../data/models/app_usage.dart';
 import 'goals_provider.dart';
 
 // Provider to track if usage data is being refreshed

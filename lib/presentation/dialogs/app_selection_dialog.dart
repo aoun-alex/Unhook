@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/services/app_discovery_service.dart';
 import '../../providers/app_discovery_provider.dart';
 
 class AppSelectionDialog extends ConsumerWidget {

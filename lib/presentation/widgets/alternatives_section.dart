@@ -61,7 +61,7 @@ class AlternativesSection extends StatelessWidget {
           Text(
             description!,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               fontSize: 14,
             ),
           ),
@@ -129,7 +129,7 @@ class AlternativesSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.grey[850]!.withOpacity(0.3),
+        color: Colors.grey[850]!.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -137,7 +137,7 @@ class AlternativesSection extends StatelessWidget {
         children: [
           Icon(
             icon ?? Icons.lightbulb_outline,
-            color: Colors.tealAccent.withOpacity(0.5),
+            color: Colors.tealAccent.withValues(alpha: 0.5),
             size: 48,
           ),
           const SizedBox(height: 16),
@@ -154,7 +154,7 @@ class AlternativesSection extends StatelessWidget {
           Text(
             description ?? 'Start using more apps to get personalized recommendations.',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               fontSize: 14,
             ),
             textAlign: TextAlign.center,
@@ -178,10 +178,10 @@ class PinnedAlternativesSection extends ConsumerWidget {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.grey[850]!.withOpacity(0.3),
+          color: Colors.grey[850]!.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.tealAccent.withOpacity(0.3),
+            color: Colors.tealAccent.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -190,7 +190,7 @@ class PinnedAlternativesSection extends ConsumerWidget {
           children: [
             Icon(
               Icons.push_pin,
-              color: Colors.tealAccent.withOpacity(0.5),
+              color: Colors.tealAccent.withValues(alpha: 0.5),
               size: 32,
             ),
             const SizedBox(height: 12),
@@ -207,7 +207,7 @@ class PinnedAlternativesSection extends ConsumerWidget {
             Text(
               'Pin your favorite alternatives for quick access.',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,

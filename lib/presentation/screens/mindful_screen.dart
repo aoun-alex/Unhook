@@ -7,7 +7,7 @@ import '../../providers/goals_provider.dart';
 import '../../data/models/alternative_model.dart';
 import 'alternative_detail_screen.dart';
 
-/// Mindful screen with tabs for alternatives and mindfulness learning
+// Mindful screen with tabs for alternatives and mindfulness learning
 class MindfulScreen extends ConsumerStatefulWidget {
   const MindfulScreen({Key? key}) : super(key: key);
 
@@ -18,16 +18,12 @@ class MindfulScreen extends ConsumerStatefulWidget {
 class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _isLoading = false;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-
-    // Initial data load
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshData();
-    });
   }
 
   @override
@@ -37,6 +33,8 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
   }
 
   Future<void> _refreshData() async {
+    if (_isLoading) return;
+
     setState(() {
       _isLoading = true;
     });
@@ -54,6 +52,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _isInitialized = true;
         });
       }
     }
@@ -61,6 +60,13 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
+    // Load data only once when the screen is first built
+    if (!_isInitialized && !_isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _refreshData();
+      });
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
       body: SafeArea(
@@ -132,7 +138,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
     );
   }
 
-  /// Builds the alternatives tab with personalized suggestions and pinned alternatives
+  // Builds the alternatives tab with personalized suggestions and pinned alternatives
   Widget _buildAlternativesTab() {
     final personalizedAlternativesAsync = ref.watch(personalizedAlternativesProvider);
     final offlineAlternatives = ref.watch(offlineAlternativesProvider);
@@ -216,7 +222,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
     );
   }
 
-  /// Empty state when no personalized alternatives are available
+  // Empty state when no personalized alternatives are available
   Widget _buildEmptyPersonalizedState() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -282,7 +288,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
     );
   }
 
-  /// Placeholder for the mindfulness tab (will be implemented in future)
+  // Placeholder for the mindfulness tab (will be implemented in future)
   Widget _buildMindfulnessTab() {
     return Center(
       child: Column(
@@ -332,7 +338,7 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
     );
   }
 
-  /// Navigate to the alternative detail screen
+  // Navigate to the alternative detail screen
   void _navigateToDetailScreen(Map<String, dynamic> alternativeData) {
     final alternative = alternativeData['alternative'] as Alternative;
     final sourceAppName = alternativeData['appName'] as String;

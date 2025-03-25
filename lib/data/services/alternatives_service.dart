@@ -7,7 +7,7 @@ import '../database/mindful_database_extension.dart';
 import '../models/goal_limit.dart';
 import '../../constants.dart';
 
-/// Service for managing and providing mindful alternatives
+// Service for managing and providing mindful alternatives
 class AlternativesService {
   final DatabaseHelper _dbHelper;
 
@@ -16,7 +16,7 @@ class AlternativesService {
     _initDatabase();
   }
 
-  /// Initialize the database tables for alternatives
+  // Initialize the database tables for alternatives
   Future<void> _initDatabase() async {
     try {
       await _dbHelper.initMindfulTables();
@@ -25,7 +25,7 @@ class AlternativesService {
     }
   }
 
-  /// Get alternatives for a specific app
+  // Get alternatives for a specific app
   List<Alternative> getAlternativesForApp(String packageName) {
     if (appMetadataMap.containsKey(packageName)) {
       return appMetadataMap[packageName]!.alternatives;
@@ -45,7 +45,7 @@ class AlternativesService {
     return [];
   }
 
-  /// Get all alternatives grouped by app category
+  // Get all alternatives grouped by app category
   Map<String, List<Map<String, dynamic>>> getAllAlternativesByCategory() {
     final Map<String, List<Map<String, dynamic>>> result = {};
 
@@ -70,12 +70,12 @@ class AlternativesService {
     return result;
   }
 
-  /// Get personalized alternatives based on the user's most used apps
-  /// and apps that have set goals/limits
+  // Get personalized alternatives based on the user's most used apps
+  // and apps that have set goals/limits
   Future<List<Map<String, dynamic>>> getPersonalizedAlternatives(List<GoalLimit> goals) async {
     final List<Map<String, dynamic>> results = [];
 
-    // First, prioritize apps that have goals set
+    // First prioritize apps that have goals set
     for (final goal in goals) {
       final alternatives = getAlternativesForApp(goal.packageName);
       if (alternatives.isNotEmpty) {
@@ -91,7 +91,7 @@ class AlternativesService {
       }
     }
 
-    // Sort alternatives, prioritizing those for apps closer to their limits
+    // Sort alternatives prioritizing those for apps closer to their limits
     results.sort((a, b) {
       final aPercentage = a['usagePercentage'] as double? ?? 0.0;
       final bPercentage = b['usagePercentage'] as double? ?? 0.0;
@@ -101,7 +101,7 @@ class AlternativesService {
     return results;
   }
 
-  /// Pin an alternative for quick access
+  // Pin an alternative for quick access
   Future<bool> pinAlternative(Alternative alternative, String sourceAppPackage) async {
     try {
       await _dbHelper.pinAlternative(alternative, sourceAppPackage);
@@ -112,7 +112,7 @@ class AlternativesService {
     }
   }
 
-  /// Unpin an alternative
+  // Unpin an alternative
   Future<bool> unpinAlternative(String title) async {
     try {
       await _dbHelper.unpinAlternative(title);
@@ -123,7 +123,7 @@ class AlternativesService {
     }
   }
 
-  /// Check if an alternative is pinned
+  // Check if an alternative is pinned
   Future<bool> isAlternativePinned(String title) async {
     try {
       return await _dbHelper.isAlternativePinned(title);
@@ -133,7 +133,7 @@ class AlternativesService {
     }
   }
 
-  /// Get all pinned alternatives
+  // Get all pinned alternatives
   Future<List<Alternative>> getPinnedAlternatives() async {
     try {
       return await _dbHelper.getPinnedAlternatives();
@@ -143,7 +143,7 @@ class AlternativesService {
     }
   }
 
-  /// Get recommendations based on a specific category
+  // Get recommendations based on a specific category
   List<Map<String, dynamic>> getRecommendationsByCategory(String category) {
     final List<Map<String, dynamic>> results = [];
 
@@ -165,7 +165,7 @@ class AlternativesService {
     return results;
   }
 
-  /// Get offline activity alternatives only
+  // Get offline activity alternatives only
   List<Map<String, dynamic>> getOfflineAlternatives() {
     final List<Map<String, dynamic>> results = [];
 

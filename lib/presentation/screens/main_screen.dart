@@ -23,7 +23,7 @@ class _MainScreenState extends ConsumerState<MainScreen> with WidgetsBindingObse
     const DashboardScreen(),
     const GoalsScreen(),
     const MindfulScreen(),
-    const SettingsScreen(), // Use our new settings screen
+    const SettingsScreen(),
   ];
 
   @override

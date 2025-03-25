@@ -6,12 +6,14 @@ class UsageChart extends StatelessWidget {
   final Map<String, Duration> usageData;
   final String title;
   final bool isWeekly;
+  final int maxAppsToShow;
 
   const UsageChart({
     Key? key,
     required this.usageData,
     required this.title,
     required this.isWeekly,
+    this.maxAppsToShow = 3, // Default to showing top 3 apps
   }) : super(key: key);
 
   @override
@@ -52,8 +54,15 @@ class UsageChart extends StatelessWidget {
       );
     }
 
+    // Sort entries by usage (highest first) and take only the top apps for the chart
+    final sortedEntries = numericData.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    // Limit to top maxAppsToShow apps for the chart
+    final topApps = Map.fromEntries(sortedEntries.take(maxAppsToShow));
+
     // Calculate nice intervals for the Y-axis
-    final maxValue = numericData.values.reduce((a, b) => a > b ? a : b);
+    final maxValue = topApps.values.reduce((a, b) => a > b ? a : b);
 
     // Set a minimum value to ensure we see something on the chart
     double effectiveMaxValue = max(maxValue, 10);
@@ -86,7 +95,12 @@ class UsageChart extends StatelessWidget {
               title,
               style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
+            Text(
+              'Top ${topApps.length} apps',
+              style: const TextStyle(color: Colors.white60, fontSize: 14),
+            ),
+            const SizedBox(height: 16),
             Expanded(
               child: BarChart(
                 BarChartData(
@@ -102,8 +116,8 @@ class UsageChart extends StatelessWidget {
                         getTitlesWidget: (value, meta) => Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
-                            value.toInt() < numericData.length
-                                ? numericData.keys.elementAt(value.toInt())
+                            value.toInt() < topApps.length
+                                ? topApps.keys.elementAt(value.toInt())
                                 : '',
                             style: const TextStyle(color: Colors.white60, fontSize: 12),
                           ),
@@ -141,9 +155,9 @@ class UsageChart extends StatelessWidget {
                   ),
                   gridData: const FlGridData(show: false),
                   borderData: FlBorderData(show: false),
-                  barGroups: numericData.entries.map((entry) {
+                  barGroups: topApps.entries.map((entry) {
                     return BarChartGroupData(
-                      x: numericData.keys.toList().indexOf(entry.key),
+                      x: topApps.keys.toList().indexOf(entry.key),
                       barRods: [
                         BarChartRodData(
                           toY: entry.value,

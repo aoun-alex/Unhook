@@ -9,7 +9,7 @@ class UsageSyncService {
 
   UsageSyncService(this._usageService, this._dbHelper);
 
-  /// Synchronize usage data with goals
+  // Synchronize usage data with goals
   Future<void> syncUsageWithGoals() async {
     try {
       // Get all active goals

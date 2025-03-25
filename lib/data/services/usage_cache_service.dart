@@ -4,7 +4,6 @@ import '../models/usage_snapshot.dart';
 import 'usage_service.dart';
 import 'dart:developer' as developer;
 
-/// In-memory cache entry
 class _CachedUsage {
   final int usageMinutes;
   final int timestamp;
@@ -15,8 +14,6 @@ class _CachedUsage {
   });
 }
 
-/// Service that provides cached access to usage data,
-/// with rate limiting to prevent excessive usage stats queries
 class UsageCacheService {
   static final UsageCacheService _instance = UsageCacheService._internal();
 
@@ -27,18 +24,18 @@ class UsageCacheService {
   final DatabaseHelper _db = DatabaseHelper();
   final UsageService _usageService = UsageService();
 
-  /// In-memory cache for very frequent access
+  // In-memory cache for very frequent access
   final Map<String, _CachedUsage> _memoryCache = {};
 
-  /// Minimum time between usage stats queries for the same app (milliseconds)
-  static const int _minQueryInterval = 30000; // 30 seconds
+  // Minimum time between usage stats queries for the same app
+  static const int _minQueryInterval = 30000;
 
-  /// Get app usage with caching strategy
+  // Get app usage with caching strategy
   Future<int> getAppUsage(String packageName) async {
     final now = DateTime.now();
     final todayFormatted = _formatDate(now);
 
-    // Check memory cache first (fastest)
+    // Check memory cache first
     if (_memoryCache.containsKey(packageName)) {
       final cached = _memoryCache[packageName]!;
 
@@ -64,7 +61,6 @@ class UsageCacheService {
 
     // If we get here, need fresh data from UsageStats
     try {
-      // Use a mutex/lock mechanism to prevent concurrent queries for the same app
       if (!_isQueryInProgress(packageName)) {
         _setQueryInProgress(packageName, true);
 
@@ -96,12 +92,12 @@ class UsageCacheService {
     }
   }
 
-  /// Get usage data for the week
+  // Get usage data for the week
   Future<List<UsageSnapshot>> getWeeklyUsage(String packageName) async {
     return await _db.getWeeklyUsageSnapshots(packageName, 7);
   }
 
-  /// Force refresh usage for a package, bypassing rate limiting
+  // Force refresh usage for a package
   Future<int> forceRefreshUsage(String packageName) async {
     try {
       // Get fresh data from the usage stats service
@@ -128,7 +124,7 @@ class UsageCacheService {
     }
   }
 
-  /// Refresh usage for all tracked apps
+  // Refresh usage for all tracked apps
   Future<void> refreshAllTrackedApps(List<String> packageNames) async {
     for (final packageName in packageNames) {
       // Use a slight delay between apps to prevent overwhelming the UsageStats API
@@ -137,7 +133,7 @@ class UsageCacheService {
     }
   }
 
-  /// Update memory cache with new usage data
+  // Update memory cache with new usage data
   void _updateMemoryCache(String packageName, int usageMinutes) {
     _memoryCache[packageName] = _CachedUsage(
       usageMinutes: usageMinutes,
@@ -156,12 +152,12 @@ class UsageCacheService {
     _queryInProgress[packageName] = inProgress;
   }
 
-  /// Format a date as yyyy-MM-dd for database storage
+  // Format a date as yyyy-MM-dd for database storage
   String _formatDate(DateTime date) {
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
 
-  /// Clear memory cache (e.g., for testing or after long inactivity)
+  // Clear memory cache (e.g., for testing or after long inactivity)
   void clearMemoryCache() {
     _memoryCache.clear();
     developer.log('Memory cache cleared');

@@ -47,11 +47,11 @@ class AppDiscoveryService {
     try {
       // Get all installed apps
       final installedApps = await DeviceApps.getInstalledApplications(
-        includeSystemApps: true, // Include system apps because of YouTube
+        includeSystemApps: true,
         includeAppIcons: true,
       );
 
-      // For each installed app, check if it's in our monitored list
+      // For each installed app check if it's in our monitored list
       for (var app in installedApps) {
         final packageName = app.packageName;
 

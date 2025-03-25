@@ -63,7 +63,6 @@ class DatabaseHelper {
       ON usage_snapshots(packageName, date)
     ''');
 
-    // Create streak_data table
     await db.execute('''
       CREATE TABLE streak_data(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -85,7 +84,6 @@ class DatabaseHelper {
       )
     ''');
 
-    // Initialize streak data with a single row
     await db.insert('streak_data', {
       'currentStreak': 0,
       'longestStreak': 0,
@@ -98,13 +96,11 @@ class DatabaseHelper {
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
-      // Add new columns for monitoring
       await db.execute('ALTER TABLE goals ADD COLUMN lastCheckTime INTEGER NOT NULL DEFAULT 0');
       await db.execute('ALTER TABLE goals ADD COLUMN notifiedAt80Percent INTEGER NOT NULL DEFAULT 0');
       await db.execute('ALTER TABLE goals ADD COLUMN notifiedAt95Percent INTEGER NOT NULL DEFAULT 0');
       await db.execute('ALTER TABLE goals ADD COLUMN nextCheckTime INTEGER');
 
-      // Initialize lastCheckTime to current time for existing goals
       final currentTime = DateTime.now().millisecondsSinceEpoch;
       await db.execute('UPDATE goals SET lastCheckTime = $currentTime');
     }
@@ -128,7 +124,6 @@ class DatabaseHelper {
     }
 
     if (oldVersion < 4) {
-      // Add streak-related tables
       await db.execute('''
         CREATE TABLE IF NOT EXISTS streak_data(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -162,7 +157,6 @@ class DatabaseHelper {
     }
 
     if (oldVersion < 5) {
-      // Add settings table
       await SettingsDatabaseHelper().initSettingsTable(db);
     }
   }
@@ -285,7 +279,6 @@ class DatabaseHelper {
       ) async {
     final db = await database;
 
-    // Also store a usage snapshot
     storeUsageSnapshot(packageName, currentUsage);
 
     return await db.update(
@@ -303,7 +296,7 @@ class DatabaseHelper {
     );
   }
 
-  // Reset notification flags (e.g., for a new day)
+  // Reset notification flags
   Future<void> resetNotificationFlags() async {
     final db = await database;
     await db.update(
@@ -334,7 +327,7 @@ class DatabaseHelper {
       },
     );
 
-    // Cleanup old snapshots - keep only last 7 days
+    // Cleanup old snapshots and keep only last 7 days
     final cutoffDate = DateTime.now().subtract(const Duration(days: 7));
     final cutoffDateStr = "${cutoffDate.year}-${cutoffDate.month.toString().padLeft(2, '0')}-${cutoffDate.day.toString().padLeft(2, '0')}";
 

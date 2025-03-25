@@ -5,27 +5,27 @@ import '../../providers/pinned_alternatives_provider.dart';
 import 'alternative_card.dart';
 import '../../providers/alternatives_provider.dart';
 
-/// A section widget that displays a group of alternatives
+// A section widget that displays a group of alternatives
 class AlternativesSection extends StatelessWidget {
-  /// The section title
+  // The section title
   final String title;
 
-  /// Alternative data with source app information
+  // Alternative data with source app information
   final List<Map<String, dynamic>> alternatives;
 
-  /// Whether to show the app that each alternative is for
+  // Whether to show the app that each alternative is for
   final bool showSourceApps;
 
-  /// Callback when an alternative is tapped
+  // Callback when an alternative is tapped
   final Function(Map<String, dynamic>)? onAlternativeTap;
 
-  /// Whether this is a pinned alternatives section
+  // Whether this is a pinned alternatives section
   final bool isPinnedSection;
 
-  /// Custom section icon
+  // Custom section icon
   final IconData? icon;
 
-  /// Description text for the section
+  // Description text for the section
   final String? description;
 
   const AlternativesSection({
@@ -100,7 +100,7 @@ class AlternativesSection extends StatelessWidget {
     );
   }
 
-  /// Builds the section header with title and icon
+  // Builds the section header with title and icon
   Widget _buildSectionHeader() {
     return Row(
       children: [
@@ -124,7 +124,7 @@ class AlternativesSection extends StatelessWidget {
     );
   }
 
-  /// Builds an empty state when there are no alternatives
+  // Builds an empty state when there are no alternatives
   Widget _buildEmptyState() {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -165,7 +165,7 @@ class AlternativesSection extends StatelessWidget {
   }
 }
 
-/// A widget that displays pinned alternatives
+// A widget that displays pinned alternatives
 class PinnedAlternativesSection extends ConsumerWidget {
   const PinnedAlternativesSection({Key? key}) : super(key: key);
 
@@ -291,7 +291,7 @@ class PinnedAlternativesSection extends ConsumerWidget {
     );
   }
 
-  /// Shows a dialog to edit the order of pinned alternatives
+  // Shows a dialog to edit the order of pinned alternatives
   void _showEditDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
@@ -321,7 +321,7 @@ class PinnedAlternativesSection extends ConsumerWidget {
   }
 }
 
-/// A widget for editing pinned alternatives (reordering, removing)
+// A widget for editing pinned alternatives (reordering, removing)
 class _PinnedAlternativesEditor extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -397,7 +397,7 @@ class _PinnedAlternativesEditor extends ConsumerWidget {
   }
 }
 
-/// A widget for displaying offline activity alternatives
+// A widget for displaying offline activity alternatives
 class OfflineAlternativesSection extends ConsumerWidget {
   final Function(Map<String, dynamic>)? onAlternativeTap;
 

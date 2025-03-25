@@ -3,9 +3,9 @@ import 'package:sqflite/sqflite.dart';
 import '../models/alternative_model.dart';
 import 'database_helper.dart';
 
-/// Extension on Database class to add methods for the mindful feature
+// Extension on Database class to add methods for the mindful feature
 extension MindfulDatabaseExtension on Database {
-  /// Creates the pinned_alternatives table if it doesn't exist
+  // Creates the pinned_alternatives table if it doesn't exist
   Future<void> createPinnedAlternativesTable() async {
     await execute('''
       CREATE TABLE IF NOT EXISTS pinned_alternatives(
@@ -24,7 +24,7 @@ extension MindfulDatabaseExtension on Database {
     ''');
   }
 
-  /// Pins an alternative to save it for quick access
+  // Pins an alternative to save it for quick access
   Future<int> pinAlternative({
     required String title,
     required String description,
@@ -55,7 +55,7 @@ extension MindfulDatabaseExtension on Database {
     );
   }
 
-  /// Unpins an alternative by title
+  // Unpins an alternative by title
   Future<int> unpinAlternative(String title) async {
     return await delete(
       'pinned_alternatives',
@@ -64,7 +64,7 @@ extension MindfulDatabaseExtension on Database {
     );
   }
 
-  /// Checks if an alternative is pinned
+  // Checks if an alternative is pinned
   Future<bool> isAlternativePinned(String title) async {
     final result = await query(
       'pinned_alternatives',
@@ -76,7 +76,7 @@ extension MindfulDatabaseExtension on Database {
     return result.isNotEmpty;
   }
 
-  /// Gets all pinned alternatives
+  // Gets all pinned alternatives
   Future<List<Map<String, dynamic>>> getPinnedAlternatives() async {
     return await query(
       'pinned_alternatives',
@@ -84,7 +84,7 @@ extension MindfulDatabaseExtension on Database {
     );
   }
 
-  /// Converts raw database map to Alternative object
+  // Converts raw database map to Alternative object
   Alternative mapToAlternative(Map<String, dynamic> map) {
     return Alternative(
       title: map['title'],
@@ -101,15 +101,14 @@ extension MindfulDatabaseExtension on Database {
   }
 }
 
-/// Extension to DatabaseHelper to add mindful-specific methods
+// Extension to DatabaseHelper to add mindful-specific methods
 extension MindfulDatabaseHelperExtension on DatabaseHelper {
-  /// Initialize mindful-related tables
   Future<void> initMindfulTables() async {
     final db = await database;
     await db.createPinnedAlternativesTable();
   }
 
-  /// Pin an alternative
+  // Pin an alternative
   Future<int> pinAlternative(Alternative alternative, String sourceAppPackage) async {
     final db = await database;
     return await db.pinAlternative(
@@ -125,19 +124,19 @@ extension MindfulDatabaseHelperExtension on DatabaseHelper {
     );
   }
 
-  /// Unpin an alternative
+  // Unpin an alternative
   Future<int> unpinAlternative(String title) async {
     final db = await database;
     return await db.unpinAlternative(title);
   }
 
-  /// Check if an alternative is pinned
+  // Check if an alternative is pinned
   Future<bool> isAlternativePinned(String title) async {
     final db = await database;
     return await db.isAlternativePinned(title);
   }
 
-  /// Get all pinned alternatives
+  // Get all pinned alternatives
   Future<List<Alternative>> getPinnedAlternatives() async {
     final db = await database;
     final maps = await db.getPinnedAlternatives();

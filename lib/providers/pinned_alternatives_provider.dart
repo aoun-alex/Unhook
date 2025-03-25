@@ -2,13 +2,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/models/alternative_model.dart';
 import 'alternatives_provider.dart';
 
-/// Provider for pinned alternatives
+// Provider for pinned alternatives
 final pinnedAlternativesProvider = FutureProvider<List<Alternative>>((ref) async {
   final alternativesService = ref.watch(alternativesServiceProvider);
   return await alternativesService.getPinnedAlternatives();
 });
 
-/// Notifier for managing the state of pinned alternatives with additional metadata
+// Notifier for managing the state of pinned alternatives with additional metadata
 class PinnedAlternativesNotifier extends StateNotifier<List<PinnedAlternativeState>> {
   final Ref _ref;
 
@@ -16,7 +16,7 @@ class PinnedAlternativesNotifier extends StateNotifier<List<PinnedAlternativeSta
     _loadPinnedAlternatives();
   }
 
-  /// Load pinned alternatives from the database
+  // Load pinned alternatives from the database
   Future<void> _loadPinnedAlternatives() async {
     final alternativesAsync = await _ref.read(pinnedAlternativesProvider.future);
 
@@ -35,12 +35,12 @@ class PinnedAlternativesNotifier extends StateNotifier<List<PinnedAlternativeSta
     state = pinnedStates;
   }
 
-  /// Reload pinned alternatives (e.g., after a change)
+  // Reload pinned alternatives (e.g., after a change)
   Future<void> reloadPinnedAlternatives() async {
     await _loadPinnedAlternatives();
   }
 
-  /// Pin a new alternative
+  // Pin a new alternative
   Future<void> pinAlternative(Alternative alternative, String sourceAppPackage) async {
     final success = await _ref.read(alternativeActionsProvider.notifier)
         .pinAlternative(alternative, sourceAppPackage);
@@ -50,7 +50,7 @@ class PinnedAlternativesNotifier extends StateNotifier<List<PinnedAlternativeSta
     }
   }
 
-  /// Unpin an alternative
+  // Unpin an alternative
   Future<void> unpinAlternative(String title) async {
     final success = await _ref.read(alternativeActionsProvider.notifier)
         .unpinAlternative(title);
@@ -60,7 +60,7 @@ class PinnedAlternativesNotifier extends StateNotifier<List<PinnedAlternativeSta
     }
   }
 
-  /// Toggle expanded state of a pinned alternative
+  // Toggle expanded state of a pinned alternative
   void toggleExpanded(String title) {
     state = [
       for (final item in state)
@@ -71,7 +71,7 @@ class PinnedAlternativesNotifier extends StateNotifier<List<PinnedAlternativeSta
     ];
   }
 
-  /// Move an alternative up in the list
+  // Move an alternative up in the list
   void moveUp(int index) {
     if (index <= 0 || index >= state.length) return;
 
@@ -82,7 +82,7 @@ class PinnedAlternativesNotifier extends StateNotifier<List<PinnedAlternativeSta
     state = newState;
   }
 
-  /// Move an alternative down in the list
+  // Move an alternative down in the list
   void moveDown(int index) {
     if (index < 0 || index >= state.length - 1) return;
 
@@ -94,12 +94,12 @@ class PinnedAlternativesNotifier extends StateNotifier<List<PinnedAlternativeSta
   }
 }
 
-/// Provider for pinned alternatives with state management
+// Provider for pinned alternatives with state management
 final pinnedAlternativesNotifierProvider = StateNotifierProvider<PinnedAlternativesNotifier, List<PinnedAlternativeState>>((ref) {
   return PinnedAlternativesNotifier(ref);
 });
 
-/// Class representing the state of a pinned alternative with additional metadata
+// Class representing the state of a pinned alternative with additional metadata
 class PinnedAlternativeState {
   final Alternative alternative;
   final bool isExpanded;
@@ -120,7 +120,7 @@ class PinnedAlternativeState {
   }
 }
 
-/// Provider to check if an alternative is pinned
+// Provider to check if an alternative is pinned
 final isAlternativePinnedProvider = FutureProvider.family<bool, String>((ref, title) async {
   final alternativesService = ref.watch(alternativesServiceProvider);
   return await alternativesService.isAlternativePinned(title);

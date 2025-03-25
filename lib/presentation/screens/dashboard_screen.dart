@@ -91,30 +91,36 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Expanded(
                 child: _isDaily
                     ? todayUsageAsync.when(
-                  data: (summaries) => _buildUsageContent(
-                    summaries: summaries,
-                    chartTitle: "Today's Usage",
-                    isWeekly: false,
-                  ),
-                  loading: () => const Center(
+                  data: (summaries) =>
+                      _buildUsageContent(
+                        summaries: summaries,
+                        chartTitle: "Today's Usage",
+                        isWeekly: false,
+                      ),
+                  loading: () =>
+                  const Center(
                       child: CircularProgressIndicator(
                           color: Colors.tealAccent)),
-                  error: (error, stack) => Center(
-                      child: Text('Error: $error',
-                          style: const TextStyle(color: Colors.white))),
+                  error: (error, stack) =>
+                      Center(
+                          child: Text('Error: $error',
+                              style: const TextStyle(color: Colors.white))),
                 )
                     : weeklyUsageAsync.when(
-                  data: (summaries) => _buildUsageContent(
-                    summaries: summaries,
-                    chartTitle: "This Week's Usage",
-                    isWeekly: true,
-                  ),
-                  loading: () => const Center(
+                  data: (summaries) =>
+                      _buildUsageContent(
+                        summaries: summaries,
+                        chartTitle: "This Week's Usage",
+                        isWeekly: true,
+                      ),
+                  loading: () =>
+                  const Center(
                       child: CircularProgressIndicator(
                           color: Colors.tealAccent)),
-                  error: (error, stack) => Center(
-                      child: Text('Error: $error',
-                          style: const TextStyle(color: Colors.white))),
+                  error: (error, stack) =>
+                      Center(
+                          child: Text('Error: $error',
+                              style: const TextStyle(color: Colors.white))),
                 ),
               ),
             ],
@@ -134,10 +140,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     try {
       if (_isDaily) {
         // Use the return value by awaiting it
-        ref.refresh(todayUsageSummaryProvider).value;
+        ref
+            .refresh(todayUsageSummaryProvider)
+            .value;
       } else {
         // Use the return value by awaiting it
-        ref.refresh(weeklyUsageSummaryProvider).value;
+        ref
+            .refresh(weeklyUsageSummaryProvider)
+            .value;
       }
     } finally {
       setState(() {
@@ -167,6 +177,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             usageData: chartData,
             title: chartTitle,
             isWeekly: isWeekly,
+            maxAppsToShow: 3, // Limit to top 3 apps in the chart
           ),
         ),
         const SizedBox(height: 24),
@@ -195,12 +206,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     summary.totalDurationText,
                     style: const TextStyle(color: Colors.tealAccent),
                   ),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetailedUsageScreen(summary: summary),
-                    ),
-                  ),
+                  onTap: () =>
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              DetailedUsageScreen(summary: summary),
+                        ),
+                      ),
                 );
               },
             ),

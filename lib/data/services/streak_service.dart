@@ -103,7 +103,7 @@ class StreakService {
     }
   }
 
-  // Process streak for any missed days (e.g., if app wasn't opened)
+  // Process streak for any missed days
   Future<void> processMissedDays() async {
     try {
       final streakData = await _dbHelper.getStreakData();
@@ -164,8 +164,6 @@ class StreakService {
 
   // Helper method to check if any goals existed on a specific date
   Future<bool> _goalsExistedOnDate(String date) async {
-    // For simplicity, we'll just check if any goals exist now
-    // In a more comprehensive implementation, you'd need to track when goals were created
     final goals = await _dbHelper.getGoals();
     return goals.isNotEmpty;
   }

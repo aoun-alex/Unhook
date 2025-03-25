@@ -3,27 +3,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/alternative_model.dart';
 import '../../providers/alternatives_provider.dart';
 
-/// A card widget that displays an alternative activity or app
+// A card widget that displays an alternative activity or app
 class AlternativeCard extends ConsumerStatefulWidget {
-  /// The alternative to display
+  // The alternative to display
   final Alternative alternative;
 
-  /// The name of the source app this is an alternative for
+  // The name of the source app this is an alternative for
   final String sourceAppName;
 
-  /// The package name of the source app
+  // The package name of the source app
   final String sourceAppPackage;
 
-  /// Whether to show which app this is an alternative for
+  // Whether to show which app this is an alternative for
   final bool showSourceApp;
 
-  /// Callback when the card is tapped
+  // Callback when the card is tapped
   final Function()? onTap;
 
-  /// Callback when the pin button is tapped
+  // Callback when the pin button is tapped
   final Function(bool isPinned)? onPinToggled;
 
-  /// Whether this card is in a pinned alternatives section
+  // Whether this card is in a pinned alternatives section
   final bool isPinnedSection;
 
   const AlternativeCard({
@@ -262,7 +262,7 @@ class _AlternativeCardState extends ConsumerState<AlternativeCard> {
   }
 }
 
-/// A smaller, simplified alternative card for the pinned section
+// A smaller, simplified alternative card for the pinned section
 class PinnedAlternativeCard extends ConsumerWidget {
   final Alternative alternative;
   final String sourceAppName;

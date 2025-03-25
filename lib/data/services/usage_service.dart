@@ -35,7 +35,7 @@ class AppUsageSummary {
 class UsageService {
   Uint8List? _defaultIcon;
 
-  /// Checks and requests usage permission
+  // Checks and requests usage permission
   Future<bool> checkAndRequestPermission() async {
     bool hasPermission = await UsageStats.checkUsagePermission() ?? false;
     if (!hasPermission) {
@@ -69,7 +69,7 @@ class UsageService {
   bool _isPausedOrStopped(AppEvent event) =>
       event.eventType == "Activity Paused" || event.eventType == "Activity Stopped";
 
-  /// Retrieves usage data for a specific time period
+  // Retrieves usage data for a specific time period
   Future<List<AppUsageSummary>> getUsageForPeriod(DateTime startDate, DateTime endDate) async {
     // Ensure we have permission
     bool hasPermission = await checkAndRequestPermission();
@@ -233,7 +233,7 @@ class UsageService {
     return summaries;
   }
 
-  /// Get usage for a specific app by package name for today in seconds
+  // Get usage for a specific app by package name for today in seconds
   Future<int> getAppUsageToday(String packageName) async {
     try {
       DateTime now = DateTime.now();
@@ -256,7 +256,7 @@ class UsageService {
     }
   }
 
-  /// Get usage for a specific app by package name for today in minutes
+  // Get usage for a specific app by package name for today in minutes
   Future<int> getAppUsageTodayMinutes(String packageName) async {
     try {
       int seconds = await getAppUsageToday(packageName);

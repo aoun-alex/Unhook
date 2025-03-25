@@ -43,7 +43,7 @@ class AppSettings {
 
   // Convert from database map
   factory AppSettings.fromMap(Map<String, String> map) {
-    // Parse notification times from comma-separated string
+    // Parse notification times from comma separated string
     List<int> notificationTimes = const [75, 90, 100]; // Default
     if (map.containsKey('custom_notification_times')) {
       try {

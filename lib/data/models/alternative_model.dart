@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 
-/// Represents a suggested alternative to a potentially addictive app
+// Represents a suggested alternative to a potentially addictive app
 class Alternative {
-  /// The title or name of the alternative
+  // The title or name of the alternative
   final String title;
 
-  /// A brief description of the alternative
+  // A brief description of the alternative
   final String description;
 
-  /// The package name if it's an app, null if it's an offline activity
+  // The package name if it's an app, null if it's an offline activity
   final String? packageName;
 
-  /// Whether this alternative is an offline activity
+  // Whether this alternative is an offline activity
   final bool isOfflineActivity;
 
-  /// Icon data for the alternative
+  // Icon data for the alternative
   final IconData icon;
 
-  /// An optional category for grouping alternatives
+  // An optional category for grouping alternatives
   final String? category;
 
   const Alternative({
@@ -29,7 +29,7 @@ class Alternative {
     this.category,
   });
 
-  /// Create a copy of this alternative with some fields replaced
+  // Create a copy of this alternative with some fields replaced
   Alternative copyWith({
     String? title,
     String? description,
@@ -49,15 +49,15 @@ class Alternative {
   }
 }
 
-/// Contains enhanced metadata about an app, including alternatives
+// Contains metadata about an app, including alternatives
 class AppMetadata {
-  /// The display name of the app
+  // The display name of the app
   final String displayName;
 
-  /// The category the app belongs to (Social Media, Entertainment, etc.)
+  // The category the app belongs to
   final String category;
 
-  /// A list of alternative activities or apps
+  // A list of alternative activities or apps
   final List<Alternative> alternatives;
 
   const AppMetadata({
@@ -67,7 +67,7 @@ class AppMetadata {
   });
 }
 
-/// Defines types of app categories for classification
+// Defines types of app categories for classification
 class AppCategories {
   static const String socialMedia = 'Social Media';
   static const String entertainment = 'Entertainment';

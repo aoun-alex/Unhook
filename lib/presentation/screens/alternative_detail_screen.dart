@@ -6,15 +6,15 @@ import '../../providers/alternatives_provider.dart';
 import '../../providers/pinned_alternatives_provider.dart';
 import 'dart:developer' as developer;
 
-/// Screen showing detailed information about an alternative
+// Screen showing detailed information about an alternative
 class AlternativeDetailScreen extends ConsumerStatefulWidget {
-  /// The alternative to display
+  // The alternative to display
   final Alternative alternative;
 
-  /// The name of the source app this is an alternative for
+  // The name of the source app this is an alternative for
   final String sourceAppName;
 
-  /// The package name of the source app
+  // The package name of the source app
   final String sourcePackageName;
 
   const AlternativeDetailScreen({
@@ -37,7 +37,7 @@ class _AlternativeDetailScreenState extends ConsumerState<AlternativeDetailScree
   @override
   void initState() {
     super.initState();
-    // Check if this alternative is pinned and if app is installed (if applicable)
+    // Check if this alternative is pinned and if app is installed
     _checkInitialState();
   }
 
@@ -418,7 +418,7 @@ class _AlternativeDetailScreenState extends ConsumerState<AlternativeDetailScree
     );
   }
 
-  /// Builds the benefits list based on the type of alternative
+  // Builds the benefits list based on the type of alternative
   Widget _buildBenefitsList(bool isOffline) {
     final benefits = isOffline
         ? [
@@ -464,7 +464,7 @@ class _AlternativeDetailScreenState extends ConsumerState<AlternativeDetailScree
     );
   }
 
-  /// Builds the getting started steps based on the type of alternative
+  // Builds the getting started steps based on the type of alternative
   Widget _buildGettingStartedSteps(bool isOffline) {
     final steps = isOffline
         ? [

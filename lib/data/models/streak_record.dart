@@ -36,7 +36,7 @@ class StreakRecord {
     );
   }
 
-  // Format date for display: e.g., "Jan 15, 2025"
+  // Format date for display
   String get formattedDate {
     final dt = dateTime;
     final months = [

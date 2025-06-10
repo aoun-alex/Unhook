@@ -127,47 +127,52 @@ class _StreakCalendarState extends ConsumerState<StreakCalendar> {
         ),
         const SizedBox(height: 8),
         Expanded(
-          child: GridView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7,
-              childAspectRatio: 1,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0), // Add padding to prevent overflow
+            child: GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 7,
+                childAspectRatio: 1,
+                crossAxisSpacing: 2, // Reduce spacing to prevent overflow
+                mainAxisSpacing: 2,
+              ),
+              itemCount: (firstWeekday - 1) + daysInMonth, // Adjusted for Monday start
+              itemBuilder: (context, index) {
+                // Empty cells for days before the first of the month
+                if (index < (firstWeekday - 1)) {
+                  return const SizedBox();
+                }
+
+                // Calculate the day number
+                final day = index - (firstWeekday - 1) + 1;
+
+                // Format the date string for lookup in the record map
+                final dateStr = _formatDate(_selectedMonth.year, _selectedMonth.month, day);
+
+                // Get the streak record for this day if it exists
+                final record = recordMap[dateStr];
+
+                // Check if this day is today
+                final isToday = _isToday(_selectedMonth.year, _selectedMonth.month, day);
+
+                // Check if this day is in the future
+                final isFuture = _isFuture(_selectedMonth.year, _selectedMonth.month, day);
+
+                // Get the streak status for this day
+                final streakStatus = _getStreakStatus(record, isFuture);
+
+                // Get the streak day number (to show consecutive days)
+                final streakDay = record?.streakDay ?? 0;
+
+                return CalendarDayCell(
+                  day: day,
+                  streakStatus: streakStatus,
+                  streakDay: streakDay,
+                  isToday: isToday,
+                );
+              },
             ),
-            itemCount: (firstWeekday - 1) + daysInMonth, // Adjusted for Monday start
-            itemBuilder: (context, index) {
-              // Empty cells for days before the first of the month
-              if (index < (firstWeekday - 1)) {
-                return const SizedBox();
-              }
-
-              // Calculate the day number
-              final day = index - (firstWeekday - 1) + 1;
-
-              // Format the date string for lookup in the record map
-              final dateStr = _formatDate(_selectedMonth.year, _selectedMonth.month, day);
-
-              // Get the streak record for this day if it exists
-              final record = recordMap[dateStr];
-
-              // Check if this day is today
-              final isToday = _isToday(_selectedMonth.year, _selectedMonth.month, day);
-
-              // Check if this day is in the future
-              final isFuture = _isFuture(_selectedMonth.year, _selectedMonth.month, day);
-
-              // Get the streak status for this day
-              final streakStatus = _getStreakStatus(record, isFuture);
-
-              // Get the streak day number (to show consecutive days)
-              final streakDay = record?.streakDay ?? 0;
-
-              return CalendarDayCell(
-                day: day,
-                streakStatus: streakStatus,
-                streakDay: streakDay,
-                isToday: isToday,
-              );
-            },
           ),
         ),
       ],
@@ -181,7 +186,6 @@ class _StreakCalendarState extends ConsumerState<StreakCalendar> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildLegendItem(Colors.grey.withValues(alpha: 0.3), 'No data'),
-          _buildLegendItem(Colors.redAccent.withValues(alpha: 0.5), 'Limit exceeded'),
           _buildLegendItem(Colors.tealAccent.withValues(alpha: 0.5), 'Within limits'),
           _buildLegendItem(Colors.tealAccent, 'Streak day'),
         ],
@@ -232,12 +236,15 @@ class _StreakCalendarState extends ConsumerState<StreakCalendar> {
       return StreakStatus.future;
     } else if (record == null) {
       return StreakStatus.noData;
-    } else if (!record.allLimitsRespected) {
-      return StreakStatus.exceeded;
     } else if (record.streakDay > 0) {
+      // If streakDay > 0, it's definitely a streak day (green)
       return StreakStatus.streak;
-    } else {
+    } else if (record.allLimitsRespected) {
+      // If limits were respected but not part of streak
       return StreakStatus.respected;
+    } else {
+      // Only show as no data if both conditions fail
+      return StreakStatus.noData;
     }
   }
 }
@@ -245,7 +252,6 @@ class _StreakCalendarState extends ConsumerState<StreakCalendar> {
 enum StreakStatus {
   noData,
   respected,
-  exceeded,
   streak,
   future,
 }
@@ -299,9 +305,6 @@ class CalendarDayCell extends StatelessWidget {
       case StreakStatus.respected:
         backgroundColor = Colors.tealAccent.withValues(alpha: 0.5);
         break;
-      case StreakStatus.exceeded:
-        backgroundColor = Colors.redAccent.withValues(alpha: 0.5);
-        break;
       case StreakStatus.streak:
         backgroundColor = Colors.tealAccent.withValues(alpha: 0.8);
         textColor = Colors.black;
@@ -327,10 +330,10 @@ class CalendarDayCell extends StatelessWidget {
     }
 
     return Container(
-      margin: const EdgeInsets.all(2),
+      margin: const EdgeInsets.all(1), // Reduced margin to prevent overflow
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6), // Slightly smaller radius
         border: border,
       ),
       child: Stack(
@@ -341,24 +344,25 @@ class CalendarDayCell extends StatelessWidget {
               style: TextStyle(
                 color: textColor,
                 fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
+                fontSize: 14, // Slightly smaller font
               ),
             ),
           ),
           if (streakDayText != null)
             Positioned(
-              top: 2,
-              right: 4,
+              top: 1,
+              right: 2,
               child: Container(
-                padding: const EdgeInsets.all(2),
+                padding: const EdgeInsets.all(1),
                 decoration: BoxDecoration(
                   color: Colors.black45,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(3),
                 ),
                 child: Text(
                   streakDayText,
                   style: const TextStyle(
                     color: Colors.tealAccent,
-                    fontSize: 10,
+                    fontSize: 8, // Smaller font for streak number
                     fontWeight: FontWeight.bold,
                   ),
                 ),

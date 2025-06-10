@@ -7,7 +7,7 @@ import '../../providers/goals_provider.dart';
 import '../../data/models/alternative_model.dart';
 import 'alternative_detail_screen.dart';
 
-// Mindful screen with tabs for alternatives and mindfulness learning
+// Mindful screen showing only alternatives (no mindfulness tab)
 class MindfulScreen extends ConsumerStatefulWidget {
   const MindfulScreen({Key? key}) : super(key: key);
 
@@ -15,22 +15,9 @@ class MindfulScreen extends ConsumerStatefulWidget {
   ConsumerState<MindfulScreen> createState() => _MindfulScreenState();
 }
 
-class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _MindfulScreenState extends ConsumerState<MindfulScreen> {
   bool _isLoading = false;
   bool _isInitialized = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
 
   Future<void> _refreshData() async {
     if (_isLoading) return;
@@ -107,29 +94,20 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
 
               const SizedBox(height: 16),
 
-              // Tab bar
-              TabBar(
-                controller: _tabController,
-                indicatorColor: Colors.tealAccent,
-                labelColor: Colors.tealAccent,
-                unselectedLabelColor: Colors.white70,
-                tabs: const [
-                  Tab(text: 'Alternatives'),
-                  Tab(text: 'Mindfulness'),
-                ],
+              // Description
+              Text(
+                'Find healthier alternatives to apps you use frequently. These suggestions are personalized based on your usage patterns.',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 14,
+                ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
-              // Tab content
+              // Content - Direct alternatives without tabs
               Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildAlternativesTab(),
-                    _buildMindfulnessTab(),
-                  ],
-                ),
+                child: _buildAlternativesContent(),
               ),
             ],
           ),
@@ -138,8 +116,8 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
     );
   }
 
-  // Builds the alternatives tab with personalized suggestions and pinned alternatives
-  Widget _buildAlternativesTab() {
+  // Builds the alternatives content directly (no tabs)
+  Widget _buildAlternativesContent() {
     final personalizedAlternativesAsync = ref.watch(personalizedAlternativesProvider);
     final offlineAlternatives = ref.watch(offlineAlternativesProvider);
 
@@ -152,16 +130,6 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Description
-            Text(
-              'Find healthier alternatives to apps you use frequently. These suggestions are personalized based on your usage patterns.',
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.7),
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 24),
-
             // Pinned alternatives section
             const PinnedAlternativesSection(),
             const SizedBox(height: 32),
@@ -282,56 +250,6 @@ class _MindfulScreenState extends ConsumerState<MindfulScreen> with SingleTicker
               ),
             ),
             child: const Text('Set Up App Goals'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Placeholder for the mindfulness tab (will be implemented in future)
-  Widget _buildMindfulnessTab() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.self_improvement,
-            size: 80,
-            color: Colors.tealAccent.withValues(alpha: 0.6),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Mindfulness Learning',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Coming soon...',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 18,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.grey[850],
-              borderRadius: BorderRadius.circular(12),
-            ),
-            width: MediaQuery.of(context).size.width * 0.8,
-            child: Text(
-              'We\'re working on mindfulness exercises and digital wellbeing lessons to help you develop healthier technology habits.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.7),
-                fontSize: 16,
-              ),
-            ),
           ),
         ],
       ),

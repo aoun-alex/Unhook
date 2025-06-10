@@ -31,7 +31,7 @@ class SettingsScreen extends ConsumerWidget {
                   pinned: true,
                   backgroundColor: Colors.grey[900],
                   title: const Text(
-                    'Settings(not fully implemented',
+                    'Settings',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,

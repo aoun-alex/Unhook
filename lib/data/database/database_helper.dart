@@ -406,29 +406,18 @@ class DatabaseHelper {
 
   // Streak-related methods
 
-  // Get current streak data
+  // Get current streak data - PLACEHOLDER DATA
   Future<Map<String, dynamic>> getStreakData() async {
     final db = await database;
-    final result = await db.query('streak_data');
 
-    if (result.isEmpty) {
-      // Initialize if not exists
-      final id = await db.insert('streak_data', {
-        'currentStreak': 0,
-        'longestStreak': 0,
-        'lastStreakDate': null,
-        'lastCheckDate': null,
-      });
-      return {
-        'id': id,
-        'currentStreak': 0,
-        'longestStreak': 0,
-        'lastStreakDate': null,
-        'lastCheckDate': null,
-      };
-    }
-
-    return result.first;
+    // Return placeholder streak data for demo
+    return {
+      'id': 1,
+      'currentStreak': 90, // 90-day streak
+      'longestStreak': 95, // Longest streak slightly higher
+      'lastStreakDate': '2025-06-09', // Yesterday
+      'lastCheckDate': '2025-06-10', // Today
+    };
   }
 
   // Update streak data
@@ -509,27 +498,27 @@ class DatabaseHelper {
     );
   }
 
-  // Check if any limit was exceeded for a specific date
+  // Check if any limit was exceeded for a specific date - PLACEHOLDER DATA
   Future<bool> wasAnyLimitExceededOnDate(String date) async {
-    final db = await database;
+    try {
+      // Parse the date
+      final dateObj = DateTime.parse(date);
 
-    // Check if there's a record for this date
-    final record = await getDailyRecord(date);
-    if (record != null) {
-      // Return the stored value
-      return !record.allLimitsRespected;
-    }
+      // Define our 90-day streak period: March 12, 2025 to June 10, 2025
+      final streakStart = DateTime(2025, 3, 12);
+      final streakEnd = DateTime(2025, 6, 10);
 
-    // If no record exists, use the usage snapshots to determine
-    final goals = await getGoals();
-
-    for (final goal in goals) {
-      final snapshot = await getLatestUsageSnapshot(goal.packageName, date);
-      if (snapshot != null && snapshot.usageMinutes > goal.limitInMinutes) {
-        return true; // At least one limit was exceeded
+      // If the date falls within our streak period, return false (no limits exceeded)
+      if (dateObj.isAfter(streakStart.subtract(const Duration(days: 1))) &&
+          dateObj.isBefore(streakEnd.add(const Duration(days: 1)))) {
+        return false; // No limits were exceeded during the streak
       }
-    }
 
-    return false; // No limits were exceeded
+      // For dates outside the streak period, return true (limits were exceeded)
+      return true;
+    } catch (e) {
+      // If there's an error parsing the date, default to true
+      return true;
+    }
   }
 }

@@ -54,6 +54,7 @@ class MyApp extends ConsumerWidget {
 
     return MaterialApp(
       title: 'Unhook',
+      debugShowCheckedModeBanner: false, // Remove debug banner
       theme: AppTheme.getTheme(isDark: isDarkMode, accentColor: accentColor),
       home: const MainScreen(),
     );

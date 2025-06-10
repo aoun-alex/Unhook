@@ -35,6 +35,11 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
 
+    // Listen to tab changes to hide/show the FloatingActionButton
+    _tabController.addListener(() {
+      setState(() {}); // Trigger rebuild when tab changes
+    });
+
     // Load goals when the screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(activeGoalsProvider.notifier).loadGoals();
@@ -57,14 +62,15 @@ class _GoalsScreenState extends ConsumerState<GoalsScreen> with SingleTickerProv
 
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
-      floatingActionButton: FloatingActionButton(
+      // Only show FloatingActionButton on the Active tab (index 0)
+      floatingActionButton: _tabController.index == 0 ? FloatingActionButton(
         onPressed: () {
           // Show app selection dialog
           _showAppSelectionDialog();
         },
         backgroundColor: Colors.tealAccent,
         child: const Icon(Icons.add, color: Color(0xFF121212)),
-      ),
+      ) : null,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

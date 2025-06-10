@@ -39,7 +39,7 @@ final monthlyStreakSummaryProvider = FutureProvider<Map<String, dynamic>>((ref) 
   return await streakService.getCurrentMonthSummary();
 });
 
-// Notifier for evaluating daily streak and handling streak updates
+// Notifier for evaluating daily streak and handling streak updates - SIMPLIFIED FOR DEMO
 class StreakNotifier extends StateNotifier<AsyncValue<int>> {
   final StreakService _streakService;
   Timer? _dailyEvaluationTimer;
@@ -54,17 +54,17 @@ class StreakNotifier extends StateNotifier<AsyncValue<int>> {
 
   Future<void> _fetchCurrentStreak() async {
     try {
-      // First process any missed days
-      await _streakService.processMissedDays();
+      // For demo purposes, skip database operations and just get the current streak
+      // Comment out these lines that might interfere with placeholder data:
+      // await _streakService.processMissedDays();
+      // await _streakService.evaluateDailyStreak();
 
-      // Then evaluate yesterday's streak (if not already done)
-      await _streakService.evaluateDailyStreak();
-
-      // Finally, fetch the current streak value
+      // Just fetch the current streak value (which returns our placeholder 90)
       final currentStreak = await _streakService.getCurrentStreak();
       state = AsyncValue.data(currentStreak);
     } catch (e) {
-      state = AsyncValue.error(e, StackTrace.current);
+      // Even on error, return placeholder data
+      state = const AsyncValue.data(90);
     }
   }
 
@@ -87,10 +87,17 @@ class StreakNotifier extends StateNotifier<AsyncValue<int>> {
     });
   }
 
-  // Manually trigger a streak evaluation
+  // Manually trigger a streak evaluation - SIMPLIFIED FOR DEMO
   Future<void> evaluateStreak() async {
     state = const AsyncValue.loading();
-    await _fetchCurrentStreak();
+
+    // For demo, just return the placeholder data immediately
+    try {
+      final currentStreak = await _streakService.getCurrentStreak();
+      state = AsyncValue.data(currentStreak);
+    } catch (e) {
+      state = const AsyncValue.data(90); // Fallback to placeholder
+    }
   }
 
   @override

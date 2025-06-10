@@ -12,25 +12,25 @@ class StreakService {
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
 
-  // Get the current streak count
+  // Get the current streak count - PLACEHOLDER DATA
   Future<int> getCurrentStreak() async {
     try {
-      final streakData = await _dbHelper.getStreakData();
-      return streakData['currentStreak'] ?? 0;
+      // Return placeholder 90-day streak
+      return 90;
     } catch (e) {
       developer.log('Error getting current streak: $e');
-      return 0;
+      return 90; // Still return placeholder on error
     }
   }
 
-  // Get the longest streak achieved
+  // Get the longest streak achieved - PLACEHOLDER DATA
   Future<int> getLongestStreak() async {
     try {
-      final streakData = await _dbHelper.getStreakData();
-      return streakData['longestStreak'] ?? 0;
+      // Return placeholder longest streak (could be same or higher)
+      return 95; // Slightly higher than current for demo
     } catch (e) {
       developer.log('Error getting longest streak: $e');
-      return 0;
+      return 95; // Still return placeholder on error
     }
   }
 
@@ -168,49 +168,64 @@ class StreakService {
     return goals.isNotEmpty;
   }
 
-  // Get records for a specific month
+  // Get records for a specific month - PLACEHOLDER DATA
   Future<List<StreakRecord>> getMonthRecords(int year, int month) async {
     try {
-      // Calculate the start and end dates for the month
-      final startDate = DateTime(year, month, 1);
-      final endDate = month < 12
-          ? DateTime(year, month + 1, 0)
-          : DateTime(year + 1, 1, 0);
+      // Generate placeholder streak records
+      List<StreakRecord> records = [];
 
-      // Get all records for the month
-      return await _dbHelper.getDailyRecords(startDate, endDate);
+      // Define our 90-day streak period: March 12, 2025 to June 10, 2025
+      final streakStart = DateTime(2025, 3, 12);
+      final streakEnd = DateTime(2025, 6, 10);
+
+      // Get the first and last day of the requested month
+      final monthStart = DateTime(year, month, 1);
+      final monthEnd = DateTime(year, month + 1, 0); // Last day of month
+
+      // Generate records for each day in the month
+      for (int day = 1; day <= monthEnd.day; day++) {
+        final currentDate = DateTime(year, month, day);
+        final dateStr = _formatDate(currentDate);
+
+        // Check if this date falls within our streak period
+        bool isInStreak = currentDate.isAfter(streakStart.subtract(const Duration(days: 1))) &&
+            currentDate.isBefore(streakEnd.add(const Duration(days: 1)));
+
+        if (isInStreak) {
+          // Calculate the streak day number
+          final daysSinceStart = currentDate.difference(streakStart).inDays + 1;
+
+          records.add(StreakRecord(
+            date: dateStr,
+            streakDay: daysSinceStart,
+            allLimitsRespected: true, // Always true for streak days
+            timestamp: currentDate.millisecondsSinceEpoch,
+          ));
+        }
+        // Don't create records for days outside the streak - they'll show as "no data" (gray)
+      }
+
+      return records;
     } catch (e) {
       developer.log('Error getting month records: $e');
       return [];
     }
   }
 
-  // Get a summary of the current month's streak status
+  // Get a summary of the current month's streak status - PLACEHOLDER DATA
   Future<Map<String, dynamic>> getCurrentMonthSummary() async {
     try {
       final now = DateTime.now();
       final records = await getMonthRecords(now.year, now.month);
 
-      // Count days with respected limits
+      // Count days with respected limits in current month
       final daysWithRespectedLimits = records.where((r) => r.allLimitsRespected).length;
 
-      // Get the current streak
-      final currentStreak = await getCurrentStreak();
+      // For June 2025, we have 10 days in streak (June 1-10)
+      final currentStreak = now.month == 6 && now.year == 2025 ? 90 : await getCurrentStreak();
 
-      // Get the longest streak this month
-      int longestStreakThisMonth = 0;
-      int currentMonthStreak = 0;
-
-      for (final record in records) {
-        if (record.allLimitsRespected) {
-          currentMonthStreak++;
-          if (currentMonthStreak > longestStreakThisMonth) {
-            longestStreakThisMonth = currentMonthStreak;
-          }
-        } else {
-          currentMonthStreak = 0;
-        }
-      }
+      // Longest streak this month would be the current streak if we're in June
+      final longestStreakThisMonth = now.month == 6 && now.year == 2025 ? 10 : daysWithRespectedLimits;
 
       return {
         'daysInMonth': DateTime(now.year, now.month + 1, 0).day,
@@ -223,7 +238,7 @@ class StreakService {
       return {
         'daysInMonth': 30,
         'daysWithRespectedLimits': 0,
-        'currentStreak': 0,
+        'currentStreak': 90, // Placeholder
         'longestStreakThisMonth': 0,
       };
     }
